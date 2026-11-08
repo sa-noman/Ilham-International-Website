@@ -367,7 +367,7 @@ function article(n) {
     <aside class="articleSideRight"><section class="articleRelated"><h2>সংশ্লিষ্ট খবর</h2>
       ${related.map((item,index)=>`<div class="articleRelatedItem"${index>=5?' hidden':''}>${story(item,img(item)+'<span>'+safe(item.title)+'</span>')}</div>`).join('')}
       ${related.length===0?'<p>এই মুহূর্তে সংশ্লিষ্ট খবর নেই।</p>':''}
-      ${related.length>5?'<button type="button" class="articleMore" data-related-more>আরও</button>':''}
+      ${related.length>5?'<button type="button" class="articleMore" data-related-more>আরও</button>':(related.length?anchor('section','আরও',n.cat,'articleMore'):'')}
     </section></aside></div>`;
 }
 
