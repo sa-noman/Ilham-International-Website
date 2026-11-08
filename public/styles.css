@@ -751,7 +751,7 @@ main .articlePage { display: grid; grid-template-columns: minmax(180px, 210px) m
 .articleRelated h2 { text-align: center; font-size: 19px; padding: 3px 0 12px; border-bottom: 1px solid var(--line); }
 .articleRelatedItem a { display: grid; grid-template-columns: 74px minmax(0,1fr); gap: 9px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; line-height: 1.4; }
 .articleRelatedItem img { aspect-ratio: 1.5; }
-.articleMore { width: 100%; margin-top: 12px; padding: 7px; background: #f2f5f1; border: 1px solid var(--line); border-radius: 5px; color: var(--green); }
+.articleMore { display: block; text-align: center; width: 100%; margin-top: 12px; padding: 7px; background: #f2f5f1; border: 1px solid var(--line); border-radius: 5px; color: var(--green); }
 .articleMore:hover { background: #e7efe7; }
 .articleAuthor { display: flex; align-items: center; gap: 9px; }
 .articleBylineMark { flex-basis: 36px; width: 36px; height: 36px; border-radius: 7px; }
