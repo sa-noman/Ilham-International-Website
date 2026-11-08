@@ -14,6 +14,13 @@ const bn = n => Number(n).toLocaleString('bn-BD',{useGrouping:false});
 const byDate = (item, options) => new Date(item.date+'+06:00').toLocaleString('bn-BD',{timeZone:'Asia/Dhaka',...options});
 const clock = item => byDate(item,{hour:'2-digit',minute:'2-digit',hour12:false});
 const date = item => byDate(item,{day:'numeric',month:'long'});
+function timeAgo(timestamp, now) {
+  const minutes = Math.floor((now - Date.parse(timestamp)) / 60000);
+  if (minutes < 1) return 'এইমাত্র';
+  if (minutes < 60) return bn(minutes) + ' মিনিট আগে';
+  if (minutes < 1440) return bn(Math.floor(minutes / 60)) + ' ঘণ্টা আগে';
+  return bn(Math.floor(minutes / 1440)) + ' দিন আগে';
+}
 const select = tag => wire.filter(item => item.cat===tag || item.tags.includes(tag));
 const ids = values => values.map(id=>reportsById.get(id)).filter(Boolean);
 let region = 'বিশ্ব', showBreaking = false, visibleCount = 14, returnFocus;
@@ -172,10 +179,12 @@ function shelf(n){
 }
 function latestPage(){
   const items=wire.filter(n=>!showBreaking||isBreaking(n));
+  const now=Date.now();
   let day='';
   const rows=items.slice(0,visibleCount).map(n=>{
     const key=date(n), group=day===key?'':'<h2 class="dayLabel">'+key+'</h2>';day=key;
-    return group+'<div class="moment"><time>'+clock(n)+'</time>'+story(n,'<div>'+badge(n)+(isBreaking(n)?' <strong class="break">ব্রেকিং</strong>':'')+
+    const timestamp=n.date+'+06:00';
+    return group+'<div class="moment"><time datetime="'+safe(timestamp)+'"><strong>'+timeAgo(timestamp,now)+'</strong> <span aria-hidden="true">·</span> '+clock(n)+'</time>'+story(n,'<div>'+badge(n)+(isBreaking(n)?' <strong class="break">ব্রেকিং</strong>':'')+
       '<h3>'+safe(n.title)+'</h3><p>'+safe(n.summary)+'</p></div>'+img(n), 'dispatch'+(isBreaking(n)?' urgent':''))+'</div>';
 
   }).join('');
