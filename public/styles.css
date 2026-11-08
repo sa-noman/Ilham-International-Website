@@ -619,3 +619,41 @@ main[data-page=latest] .filters button[aria-pressed=true] {
   border-color: currentColor;
   font-weight: 600;
 }
+
+/* Single-column article reader */
+main .articleReader { max-width: 820px; }
+.articleIntro h1 { font-size: clamp(29px, 3.5vw, 46px); line-height: 1.35; margin: 8px 0 10px; }
+.articleIntro p { font: 400 clamp(18px, 2vw, 24px)/1.55 var(--serif); color: var(--muted); }
+.articlePhoto { margin: 22px 0 0; }
+.articlePhoto img { border-radius: 6px; }
+.articleMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 15px;
+}
+.articleMeta time { display: flex; align-items: center; gap: 5px; color: var(--muted); font-size: 13px; }
+.articleMeta time svg { width: 15px; height: 15px; }
+.articleTextControls { display: flex; gap: 6px; }
+.articleTextControls button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--green);
+  border-radius: 50%;
+  color: var(--green);
+  line-height: 1;
+}
+.articleTextControls button:hover { background: #edf4ec; }
+.articleBody { padding-top: 22px; }
+.articleBody p {
+  font: 400 calc(clamp(18px, 2vw, 22px) + var(--article-text-adjustment, 0px))/1.75 var(--serif);
+  margin-bottom: 16px;
+}
+.world :is(.briefRow, .feature, .card) .desk { display: block; font-size: 13px; margin-bottom: 3px; }
