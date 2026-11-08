@@ -31,6 +31,7 @@ const icons = {
  play:'<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>',
  paper:'<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M7 7h10M7 11h4v4H7zM14 11h3m-3 4h3M7 18h10"/>',
  time:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ print:'<path d="M6 8V3h12v5M6 17H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6zM18 11h1"/>',
  share:'<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="5" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.5m-7.6 6.9 7.6 4.5"/>',
  link:'<path d="m10 14 4-4m-6.5 5.5-1 1a3 3 0 0 0 4.2 4.2l4-4a3 3 0 0 0 0-4.2m1.8-4 1-1a3 3 0 0 0-4.2-4.2l-4 4a3 3 0 0 0 0 4.2"/>',
  facebook:'<circle cx="12" cy="12" r="10" fill="#1877f2" stroke="none"/><path d="M13 21v-8h2l.4-2.5H13V9.2c0-.8.3-1.2 1.3-1.2H16V5.5h-2.1c-2.5 0-3.7 1.4-3.7 3.6v1.4H8V13h2.2v8" fill="white" stroke="none"/>',
@@ -283,14 +284,20 @@ function articleShare(n) {
     ['whatsapp', 'হোয়াটসঅ্যাপ', 'https://wa.me/?text='+title+'%20'+link]
   ];
   return `<div class="articleActions" data-article-link="${safe(permalink.href)}">
+      <div class="articleTextControls" role="group" aria-label="লেখার আকার">
+        <button type="button" data-text-size="-1" aria-label="লেখা ছোট করুন">−</button>
+        <button type="button" data-text-size="0" aria-label="স্বাভাবিক আকারে ফেরান">অ</button>
+        <button type="button" data-text-size="1" aria-label="লেখা বড় করুন">+</button>
+      </div>
     <details class="articleShare">
-      <summary class="articleAction">${icon('share')} শেয়ার</summary>
+      <summary class="articleAction" aria-label="শেয়ার" title="শেয়ার">${icon('share')}</summary>
       <div class="shareTray" role="group" aria-label="শেয়ার করার মাধ্যম">
         ${platforms.map(([id,label,href])=>`<a class="sharePlatform ${id}" href="${safe(href)}" target="_blank" rel="noopener"${id==='instagram'?' data-instagram title="লিংক কপি করে ইন্সটাগ্রাম খুলুন"':''}>${icon(id)}<span>${label}</span></a>`).join('')}
         <button type="button" class="sharePlatform" data-share-other>${icon('more')}<span>অন্যান্য</span></button>
       </div>
     </details>
-    <button type="button" class="articleAction" data-copy-article>${icon('link')} লিংক কপি</button>
+    <button type="button" class="articleAction" data-copy-article aria-label="লিংক কপি" title="লিংক কপি">${icon('link')}</button>
+    <button type="button" class="articleAction" data-print-article aria-label="প্রিন্ট" title="প্রিন্ট">${icon('print')}</button>
   </div>`;
 }
 
@@ -333,16 +340,14 @@ function article(n) {
       <h1>${safe(n.title)}</h1>
       <p>${safe(n.summary)}</p>
     </header>
-    <figure class="articlePhoto">${img(n,true)}</figure>
+    <figure class="articlePhoto">
+      ${n.caption ? `<figcaption>${safe(n.caption)}</figcaption>` : ''}
+      ${img(n,true)}
+    </figure>
     <div class="articleMeta">
       <div>
-        <strong>${safe(n.author || 'ইলহাম নিউজ')}</strong>
+        <strong class="articleByline"><span class="articleBylineMark" aria-hidden="true"></span>${safe(n.author || 'ইলহাম নিউজ')}</strong>
         <time datetime="${safe(n.date+'+06:00')}">${icon('time')} প্রকাশ ${published} · ${clock(n)}</time>
-      </div>
-      <div class="articleTextControls" role="group" aria-label="লেখার আকার">
-        <button type="button" data-text-size="-1" aria-label="লেখা ছোট করুন">−</button>
-        <button type="button" data-text-size="0" aria-label="স্বাভাবিক আকারে ফেরান">অ</button>
-        <button type="button" data-text-size="1" aria-label="লেখা বড় করুন">+</button>
       </div>
       ${articleShare(n)}
     </div>
@@ -418,15 +423,16 @@ document.addEventListener('click',e=>{
   if (share && !share.contains(e.target)) share.open = false;
   const el=e.target.closest('a,button');
   if(!el)return;
+  if (el.hasAttribute('data-text-size')) {
+    adjustArticleText(el);
+    return;
+  }
   const actions=el.closest('.articleActions');
   if (actions) {
+    if (el.hasAttribute('data-print-article')) window.print();
     if (el.matches('[data-copy-article], [data-instagram]')) copyArticleLink(actions, el.hasAttribute('data-instagram'));
     if (el.hasAttribute('data-share-other')) shareArticleOther(actions);
     if (el.closest('.shareTray')) actions.querySelector('details').open = false;
-    return;
-  }
-  if (el.hasAttribute('data-text-size')) {
-    adjustArticleText(el);
     return;
   }
   if (el.hasAttribute('data-video-step')) {

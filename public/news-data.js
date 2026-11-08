@@ -36,6 +36,7 @@ window.NEWS = [
     "author": "",
     "date": "2026-11-04T19:18:08",
     "image": "assets/news-1463.webp",
+    "caption": "যুক্তরাষ্ট্রের পতাকার সামনে প্রেসিডেন্ট ডোনাল্ড ট্রাম্পের প্রতিকৃতি।",
     "source": "https://ilhamnews.com/?p=1463"
   },
   {
