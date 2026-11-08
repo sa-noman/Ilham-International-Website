@@ -256,6 +256,8 @@ html {
   pointer-events: none;
 }
 
+.siteHeader:not(.is-compact) .wrap { max-width: 1250px; }
+
 .siteHeader .navBand nav {
   padding-inline-start: 0;
   transition: padding-inline-start 280ms ease;
