@@ -330,6 +330,31 @@ async function shareArticleOther(actions) {
   showArticleLink(link);
 }
 
+function readComments(id) {
+  try { return JSON.parse(localStorage.getItem('ilham-comments-'+id) || '[]'); }
+  catch { return []; }
+}
+function commentsSection(id) {
+  const comments=readComments(id);
+  const thread=comments.map(comment=>`<div class="commentItem">
+    <strong>${safe(comment.name)}</strong><p>${safe(comment.message)}</p>
+    <button type="button" data-comment-reply="${safe(comment.id)}">উত্তর দিন</button>
+    ${(comment.replies||[]).map(reply=>`<div class="commentReply"><strong>${safe(reply.name)}</strong><p>${safe(reply.message)}</p></div>`).join('')}
+  </div>`).join('');
+  return `<section class="comments" data-article-id="${safe(id)}">
+    <h2>মন্তব্য <span>${bn(comments.length)}</span></h2>
+    <p class="commentsNote">প্রিভিউতে মন্তব্য এই ব্রাউজারে সংরক্ষিত থাকবে।</p>
+    <form class="commentForm" data-comments>
+      <p class="replyTarget" hidden></p>
+      <input name="name" type="text" maxlength="80" required placeholder="আপনার নাম" aria-label="আপনার নাম">
+      <textarea name="message" maxlength="2000" required rows="3" placeholder="আপনার মন্তব্য লিখুন" aria-label="আপনার মন্তব্য"></textarea>
+      <div class="commentFormActions"><button type="button" data-cancel-reply hidden>বাতিল</button><button type="submit">মন্তব্য পাঠান</button></div>
+      <p class="commentError" role="status"></p>
+    </form>
+    <div class="commentList">${thread || '<p class="commentsEmpty">এখনও কোনো মন্তব্য নেই। প্রথম মন্তব্যটি করুন।</p>'}</div>
+  </section>`;
+}
+
 function article(n) {
   const titleWords = n.title.split(/[\s,।:?!]+/u).filter(word => word.length >= 5);
   const candidates = wire.filter(item=>titleWords.some(word=>item.title.includes(word)));
@@ -337,10 +362,9 @@ function article(n) {
     item.id !== n.id && items.findIndex(candidate=>candidate.id===item.id)===index
   ).slice(0, 10);
   const latest = wire.filter(item=>item.id!==n.id).slice(0,5);
-  const popular = popularStories().filter(item=>item.id!==n.id).slice(0,5);
   const numbered = (title,items) => `<section class="articleRanked"><h2>${title}</h2><ol>${items.map(item=>'<li>'+story(item,safe(item.title))+'</li>').join('')}</ol></section>`;
   const published = byDate(n, {day:'numeric', month:'long', year:'numeric'});
-  return `<div class="wrap articlePage"><aside class="articleSideLeft">${numbered('সর্বশেষ খবর',latest)}${numbered('সর্বাধিক পঠিত',popular)}</aside><article class="inside articleReader">
+  return `<div class="wrap articlePage"><aside class="articleSideLeft">${numbered('সর্বশেষ খবর',latest)}</aside><article class="inside articleReader">
     ${crumb(n.cat)}
     <header class="articleIntro">
       ${anchor('section',safe(n.cat),n.cat,'desk')}
@@ -348,8 +372,8 @@ function article(n) {
       <p>${safe(n.summary)}</p>
     </header>
     <figure class="articlePhoto">
-      ${n.caption ? `<figcaption>${safe(n.caption)}</figcaption>` : ''}
       ${img(n,true)}
+      ${n.caption ? `<figcaption>${safe(n.caption)}</figcaption>` : ''}
     </figure>
     <div class="articleMeta">
       <div class="articleAuthor"><span class="articleBylineMark" aria-hidden="true"></span><div>
@@ -363,6 +387,7 @@ function article(n) {
       ${n.body.map(paragraph=>`<p>${safe(paragraph)}</p>`).join('')}
       <a class="more" href="${safe(n.source)}" target="_blank" rel="noopener">মূল প্রতিবেদন পড়ুন ${icon('up')}</a>
     </div>
+    ${commentsSection(n.id)}
   </article>
     <aside class="articleSideRight"><section class="articleRelated"><h2>সংশ্লিষ্ট খবর</h2>
       ${related.map((item,index)=>`<div class="articleRelatedItem"${index>=5?' hidden':''}>${story(item,img(item)+'<span>'+safe(item.title)+'</span>')}</div>`).join('')}
@@ -434,6 +459,24 @@ document.addEventListener('click',e=>{
   if (share && !share.contains(e.target)) share.open = false;
   const el=e.target.closest('a,button');
   if(!el)return;
+  if (el.hasAttribute('data-comment-reply')) {
+    const section=el.closest('.comments'), form=section.querySelector('form');
+    form.dataset.replyTo=el.dataset.commentReply;
+    const author=el.closest('.commentItem').querySelector('strong').textContent;
+    const target=form.querySelector('.replyTarget');
+    target.textContent=author+'-এর মন্তব্যের উত্তর লিখুন';
+    target.hidden=false;
+    form.querySelector('[data-cancel-reply]').hidden=false;
+    form.querySelector('[name=message]').focus();
+    return;
+  }
+  if (el.hasAttribute('data-cancel-reply')) {
+    const form=el.closest('form');
+    delete form.dataset.replyTo;
+    form.querySelector('.replyTarget').hidden=true;
+    el.hidden=true;
+    return;
+  }
   if (el.hasAttribute('data-related-more')) {
     document.querySelectorAll('.articleRelatedItem[hidden]').forEach(item=>item.hidden=false);
     el.remove();
@@ -465,7 +508,30 @@ document.addEventListener('click',e=>{
     return;
   }
   if(el.matches('.navBrand')&&pageState()[0]==='home')window.scrollTo(0,0);if(el.dataset.pane){feedView=el.dataset.pane;document.querySelector('.feedPanel').outerHTML=feedPanel();document.querySelector('.feedTabs [aria-pressed=true]').focus({preventScroll:true});return}if(el.matches('dialog a,[data-close]'))document.querySelector('dialog')?.close();if(el.dataset.tool==='menu')dialog('সব বিভাগ','<div class="menuGrid">'+anchor('home','প্রচ্ছদ')+anchor('latest','সর্বশেষ')+anchor('videos','ভিডিও')+sections.map(s=>anchor('section',s,s)).join('')+'</div>');if(el.dataset.tool==='search')dialog('সংবাদ খুঁজুন','<form data-search><label>শিরোনাম বা বিষয়<input autofocus required type="search" name="term" placeholder="যেমন: ইরান"></label><button>খুঁজুন</button></form>');if(el.dataset.region){region=el.dataset.region;document.querySelector('.world').outerHTML=world();document.querySelector('.tabs [aria-pressed=true]')?.focus({preventScroll:true})}if(el.dataset.filter){showBreaking=el.dataset.filter==='breaking';visibleCount=14;render()}if(el.hasAttribute('data-more')){visibleCount+=14;render()}if(el.dataset.video){const v=videos.find(x=>String(x.id)===el.dataset.video);if(v)dialog(v.title,'<video controls playsinline autoplay poster="'+safe(v.image)+'" src="'+safe(v.url)+'"></video><p>'+safe(v.description)+'</p><a class="more" href="'+safe(v.source)+'" target="_blank" rel="noopener">সূত্র ↗</a>')}});
-document.addEventListener('submit',e=>{if(!e.target.matches('[data-search]'))return;e.preventDefault();const q=e.target.term.value.trim();if(q){document.querySelector('dialog')?.close();location.hash=url('search',q)}});
+document.addEventListener('submit',e=>{
+  if (e.target.matches('[data-comments]')) {
+    e.preventDefault();
+    const form=e.target, section=form.closest('.comments');
+    const name=form.elements.name.value.trim(), message=form.elements.message.value.trim();
+    if (!name || !message) { form.querySelector('.commentError').textContent='নাম ও মন্তব্য লিখুন।'; return; }
+    const comments=readComments(section.dataset.articleId);
+    const replyTo=form.dataset.replyTo;
+    if (replyTo) {
+      const parent=comments.find(comment=>comment.id===replyTo);
+      if (!parent) { form.querySelector('.commentError').textContent='মূল মন্তব্যটি পাওয়া যায়নি।'; return; }
+      parent.replies ||= [];
+      parent.replies.push({name,message});
+    } else {
+      comments.push({id:crypto.randomUUID(),name,message,replies:[]});
+    }
+    try {
+      localStorage.setItem('ilham-comments-'+section.dataset.articleId,JSON.stringify(comments));
+      section.outerHTML=commentsSection(section.dataset.articleId);
+      document.querySelector('.comments h2').scrollIntoView({block:'nearest'});
+    } catch { form.querySelector('.commentError').textContent='মন্তব্য সংরক্ষণ করা যায়নি।'; }
+    return;
+  }
+  if(!e.target.matches('[data-search]'))return;e.preventDefault();const q=e.target.term.value.trim();if(q){document.querySelector('dialog')?.close();location.hash=url('search',q)}});
 window.addEventListener('scroll', syncHeader, { passive: true });
 window.addEventListener('pageshow', syncHeader);
 

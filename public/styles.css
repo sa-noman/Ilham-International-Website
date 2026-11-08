@@ -626,7 +626,7 @@ main .articleReader { max-width: 820px; }
 .articleIntro p { font: 400 clamp(18px, 2vw, 24px)/1.55 var(--serif); color: var(--muted); }
 .articlePhoto { margin: 22px 0 0; }
 .articlePhoto img { border-radius: 6px; }
-.articlePhoto figcaption { margin-bottom: 8px; color: var(--muted); font-size: 14px; }
+.articlePhoto figcaption { margin-top: 8px; color: var(--muted); font-size: 14px; }
 .articleByline { display: flex; align-items: center; gap: 6px; }
 .articleBylineMark { flex: 0 0 18px; height: 18px; background: url("assets/brand-logo.png") left center / auto 100% no-repeat; }
 .articleMeta {
@@ -770,3 +770,30 @@ main .articlePage { display: grid; grid-template-columns: minmax(180px, 210px) m
   .articleSideLeft { order: 2; }
 }
 @media print { .articleSideLeft, .articleSideRight { display: none; } main .articlePage { display: block; } }
+
+/* Reading layout and local preview comments */
+main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) minmax(255px, 295px); gap: 24px; }
+.articleRelatedItem a { grid-template-columns: 84px minmax(0,1fr); font-size: 17px; line-height: 1.5; }
+.articleActions { background: #f5f8f5; border-color: #e9f0ea; }
+.articleAction, .articleTextControls button { color: #729586; }
+.articleTextControls button { background: #f4f8f4; border-color: #e9f0e9; }
+.articleActions > :not(:first-child) { border-color: #e0e9e1; }
+.comments { border-top: 1px solid var(--line); margin: 34px 0; padding-top: 22px; }
+.comments h2 { font: 700 25px var(--serif); color: var(--green); }
+.comments h2 span { font-size: 15px; color: var(--muted); }
+.commentsNote, .commentsEmpty { font-size: 14px; color: var(--muted); margin: 8px 0 14px; }
+.commentForm { display: grid; gap: 10px; }
+.commentForm input, .commentForm textarea { width: 100%; padding: 10px 12px; border: 1px solid #d7e0d9; border-radius: 5px; font: inherit; background: #fff; color: var(--ink); }
+.commentForm textarea { resize: vertical; }
+.commentFormActions { display: flex; justify-content: flex-end; gap: 10px; }
+.commentFormActions button { padding: 8px 16px; border-radius: 5px; color: var(--green); }
+.commentFormActions button[type=submit] { background: var(--green); color: white; }
+.commentError { color: #9d3434; font-size: 14px; }
+.commentItem { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.commentItem p, .commentReply p { white-space: pre-wrap; overflow-wrap: anywhere; margin: 5px 0; }
+.commentItem button { color: var(--green); font-size: 14px; padding: 2px 0; }
+.commentReply { margin: 12px 0 0 22px; padding-left: 12px; border-left: 2px solid #dce6dd; }
+.replyTarget { color: var(--muted); font-size: 14px; }
+@media (max-width:1050px) { main .articlePage { grid-template-columns: minmax(0,1fr) minmax(220px,270px); } }
+@media (max-width:700px) { main .articlePage { display:flex; } }
+@media print { .comments { display:none; } }
