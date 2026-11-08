@@ -207,6 +207,8 @@ html {
 }
 
 .siteHeader {
+  --compact-mark-size: 28px;
+  --compact-mark-gap: 13px;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -239,6 +241,15 @@ html {
   align-items: center;
 }
 
+.siteHeader .navBand nav {
+  padding-inline-start: 0;
+  transition: padding-inline-start 280ms ease;
+}
+
+.siteHeader.is-compact .navBand nav {
+  padding-inline-start: calc(var(--compact-mark-size) + var(--compact-mark-gap));
+}
+
 .navBand .navBrand {
   flex: 0 0 auto;
   width: 0;
@@ -251,21 +262,21 @@ html {
 }
 
 .navBrand span {
-  flex: 0 0 28px;
-  height: 28px;
+  flex: 0 0 var(--compact-mark-size);
+  height: var(--compact-mark-size);
   background: url('assets/brand-logo.png') left center / auto 100% no-repeat;
 }
 
 .siteHeader.is-compact .navBrand {
-  width: 28px;
-  margin-inline-end: 13px;
+  width: var(--compact-mark-size);
+  margin-inline-end: var(--compact-mark-gap);
   opacity: 1;
 }
 
 .navBrand:focus-visible { outline-offset: -2px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .mastheadTop, .mastheadInner, .navBand .navBrand { transition: none; }
+  .mastheadTop, .mastheadInner, .siteHeader .navBand nav, .navBand .navBrand { transition: none; }
 }
 
 /* Dedicated video page */
