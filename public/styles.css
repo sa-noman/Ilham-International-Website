@@ -627,8 +627,8 @@ main .articleReader { max-width: 820px; }
 .articlePhoto { margin: 22px 0 0; }
 .articlePhoto img { border-radius: 6px; }
 .articlePhoto figcaption { margin-top: 8px; color: var(--muted); font-size: 14px; }
+.articlePhoto:has(figcaption) + .articleMeta { margin-top: 16px; }
 .articleByline { display: flex; align-items: center; gap: 6px; }
-.articleBylineMark { flex: 0 0 18px; height: 18px; background: url("assets/brand-logo.png") left center / auto 100% no-repeat; }
 .articleMeta {
   display: flex;
   align-items: center;
@@ -754,7 +754,6 @@ main .articlePage { display: grid; grid-template-columns: minmax(180px, 210px) m
 .articleMore { display: block; text-align: center; width: 100%; margin-top: 12px; padding: 7px; background: #f2f5f1; border: 1px solid var(--line); border-radius: 5px; color: var(--green); }
 .articleMore:hover { background: #e7efe7; }
 .articleAuthor { display: flex; align-items: center; gap: 9px; }
-.articleBylineMark { flex-basis: 36px; width: 36px; height: 36px; border-radius: 7px; }
 @media (max-width: 1050px) {
   main .articlePage { grid-template-columns: minmax(0,1fr) minmax(190px,240px); }
   .articleReader { grid-column: 1; grid-row: 1 / span 2; }

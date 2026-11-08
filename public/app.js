@@ -376,7 +376,7 @@ function article(n) {
       ${n.caption ? `<figcaption>${safe(n.caption)}</figcaption>` : ''}
     </figure>
     <div class="articleMeta">
-      <div class="articleAuthor"><span class="articleBylineMark" aria-hidden="true"></span><div>
+      <div class="articleAuthor"><div>
         <strong class="articleByline">${safe(n.author || 'ইলহাম নিউজ')}</strong>
         <time datetime="${safe(n.date+'+06:00')}">${icon('time')} প্রকাশ ${published} · ${clock(n)}</time>
       </div></div>
