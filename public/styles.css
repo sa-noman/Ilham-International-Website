@@ -181,6 +181,20 @@ main img:hover {
   filter: brightness(.93) saturate(1.14);
 }
 
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  main img {
+    clip-path: inset(0);
+    transition: filter 180ms ease, transform 240ms ease, clip-path 240ms ease;
+  }
+
+  main img:hover,
+  .videoImage:hover img {
+    transform: scale(1.06);
+    /* Counter the scale so the visible image stays inside its frame. */
+    clip-path: inset(2.83%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   a, a :is(h1, h2, h3), .videoTile strong, button, img { transition: none; }
 }
