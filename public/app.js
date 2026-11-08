@@ -31,6 +31,13 @@ const icons = {
  play:'<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>',
  paper:'<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M7 7h10M7 11h4v4H7zM14 11h3m-3 4h3M7 18h10"/>',
  time:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ share:'<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="5" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.5m-7.6 6.9 7.6 4.5"/>',
+ link:'<path d="m10 14 4-4m-6.5 5.5-1 1a3 3 0 0 0 4.2 4.2l4-4a3 3 0 0 0 0-4.2m1.8-4 1-1a3 3 0 0 0-4.2-4.2l-4 4a3 3 0 0 0 0 4.2"/>',
+ facebook:'<circle cx="12" cy="12" r="10" fill="#1877f2" stroke="none"/><path d="M13 21v-8h2l.4-2.5H13V9.2c0-.8.3-1.2 1.3-1.2H16V5.5h-2.1c-2.5 0-3.7 1.4-3.7 3.6v1.4H8V13h2.2v8" fill="white" stroke="none"/>',
+ twitter:'<path d="M4 4h4.5L20 20h-4.5L4 4Zm15.5 0L4.5 20"/>',
+ instagram:'<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.7" r=".8" fill="currentColor" stroke="none"/>',
+ whatsapp:'<path d="M20.7 11.7a8.7 8.7 0 0 1-12.9 7.6L4 20.5l1.2-3.8a8.7 8.7 0 1 1 15.5-5Z"/><path d="M8.5 8c-.7.3-.9 1.1-.5 2.1 1 2.5 3.3 4.8 5.9 5.6.9.3 1.7-.1 2.1-.8l-2.4-1.4-.9.8a7.4 7.4 0 0 1-3.1-3.1l.8-.9L9.1 8Z" fill="currentColor" stroke="none"/>',
+ more:'<circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/>',
  telegram:'<path fill="currentColor" stroke="none" d="M21.8 3.1c.6-.3 1.2.2 1.1 1l-3.4 16.2c-.2.9-.9 1.1-1.6.6l-5.2-3.8-2.5 2.4c-.3.2-.5.4-.9.4l.4-5.4L19.5 6c.4-.4-.1-.5-.6-.2L6.8 13.4l-5.2-1.6c-1.1-.3-1.1-1.1.2-1.6z"/>'
 };
 function icon(name){return '<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[name]+'</svg>'}
@@ -263,6 +270,59 @@ function listing(title,items){
   return '<section class="wrap inside">'+crumb(title)+'<div class="sectionMast"><h1>'+safe(title)+'</h1><span>'+bn(items.length)+
     'টি প্রতিবেদন</span></div><div class="sectionGrid">'+cards+'</div></section>';
 }
+function articleShare(n) {
+  const permalink = new URL(url('article', n.id), location.href);
+  permalink.search = '';
+  const link = encodeURIComponent(permalink.href);
+  const title = encodeURIComponent(n.title);
+  const platforms = [
+    ['facebook', 'ফেসবুক', 'https://www.facebook.com/sharer/sharer.php?u='+link],
+    ['twitter', 'টুইটার', 'https://twitter.com/intent/tweet?url='+link+'&text='+title],
+    ['instagram', 'ইন্সটাগ্রাম', 'https://www.instagram.com/'],
+    ['telegram', 'টেলিগ্রাম', 'https://t.me/share/url?url='+link+'&text='+title],
+    ['whatsapp', 'হোয়াটসঅ্যাপ', 'https://wa.me/?text='+title+'%20'+link]
+  ];
+  return `<div class="articleActions" data-article-link="${safe(permalink.href)}">
+    <details class="articleShare">
+      <summary class="articleAction">${icon('share')} শেয়ার</summary>
+      <div class="shareTray" role="group" aria-label="শেয়ার করার মাধ্যম">
+        ${platforms.map(([id,label,href])=>`<a class="sharePlatform ${id}" href="${safe(href)}" target="_blank" rel="noopener"${id==='instagram'?' data-instagram title="লিংক কপি করে ইন্সটাগ্রাম খুলুন"':''}>${icon(id)}<span>${label}</span></a>`).join('')}
+        <button type="button" class="sharePlatform" data-share-other>${icon('more')}<span>অন্যান্য</span></button>
+      </div>
+    </details>
+    <button type="button" class="articleAction" data-copy-article>${icon('link')} লিংক কপি</button>
+  </div>`;
+}
+
+async function copyArticleLink(actions, instagram=false) {
+  const status = actions.closest('.articleReader').querySelector('.articleShareStatus');
+  const link = actions.dataset.articleLink;
+  try {
+    await navigator.clipboard.writeText(link);
+    status.textContent = instagram ? 'লিংক কপি হয়েছে। ইন্সটাগ্রামে পেস্ট করুন।' : 'লিংক কপি হয়েছে।';
+  } catch {
+    showArticleLink(link);
+  }
+}
+
+function showArticleLink(link) {
+  dialog('প্রতিবেদনের লিংক', '<input class="articleLinkField" aria-label="প্রতিবেদনের লিংক" readonly value="'+safe(link)+'"><p><a class="more" href="mailto:?body='+encodeURIComponent(link)+'">ইমেইলে পাঠান</a></p>');
+  document.querySelector('dialog .articleLinkField').select();
+}
+
+async function shareArticleOther(actions) {
+  const link = actions.dataset.articleLink;
+  if (navigator.share) {
+    try {
+      await navigator.share({title: document.querySelector('.articleIntro h1').textContent, url: link});
+      return;
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+    }
+  }
+  showArticleLink(link);
+}
+
 function article(n) {
   const related = select(n.cat).filter(item => item.id !== n.id).slice(0, 3);
   const published = byDate(n, {day:'numeric', month:'long', year:'numeric'});
@@ -284,7 +344,9 @@ function article(n) {
         <button type="button" data-text-size="0" aria-label="স্বাভাবিক আকারে ফেরান">অ</button>
         <button type="button" data-text-size="1" aria-label="লেখা বড় করুন">+</button>
       </div>
+      ${articleShare(n)}
     </div>
+    <p class="articleShareStatus" role="status"></p>
     <div class="articleBody">
       ${n.body.map(paragraph=>`<p>${safe(paragraph)}</p>`).join('')}
       <a class="more" href="${safe(n.source)}" target="_blank" rel="noopener">মূল প্রতিবেদন পড়ুন ${icon('up')}</a>
@@ -344,7 +406,25 @@ function playFeaturedVideo(button) {
 }
 function render(){const [page,param]=pageState();let view=home;if(page==='latest')view=latestPage;if(page==='videos')view=()=>watch(param);if(page==='section')view=()=>listing(param,select(param));if(page==='article'&&reportsById.has(param))view=()=>article(reportsById.get(param));if(page==='search')view=()=>searchPage('অনুসন্ধান · '+param,wire.filter(n=>(n.title+' '+n.summary+' '+n.tags.join(' ')).includes(param)));document.querySelector('#publication').innerHTML=header(page,param)+'<main id="main" data-page="'+page+'">'+view()+'</main>'+footer();syncHeader();scheduleVideos();document.title=(page==='home'?'প্রচ্ছদ':page==='videos'?'ভিডিও':document.querySelector('main h1')?.textContent||'সংবাদ')+' | Ilham News'}
 function dialog(title,body){const d=document.createElement('dialog');returnFocus=document.activeElement;d.innerHTML='<div class="dialogHead"><h2>'+safe(title)+'</h2><button data-close aria-label="বন্ধ করুন">'+icon('close')+'</button></div>'+body;document.body.append(d);d.addEventListener('close',()=>{d.querySelector('video')?.pause();d.remove();returnFocus?.focus()},{once:true});d.showModal()}
-document.addEventListener('click',e=>{const el=e.target.closest('a,button');if(!el)return;
+document.addEventListener('keydown',event=>{
+  if (event.key !== 'Escape') return;
+  const share = document.querySelector('.articleShare[open]');
+  if (!share || !share.contains(document.activeElement)) return;
+  share.open = false;
+  share.querySelector('summary').focus();
+});
+document.addEventListener('click',e=>{
+  const share = document.querySelector('.articleShare[open]');
+  if (share && !share.contains(e.target)) share.open = false;
+  const el=e.target.closest('a,button');
+  if(!el)return;
+  const actions=el.closest('.articleActions');
+  if (actions) {
+    if (el.matches('[data-copy-article], [data-instagram]')) copyArticleLink(actions, el.hasAttribute('data-instagram'));
+    if (el.hasAttribute('data-share-other')) shareArticleOther(actions);
+    if (el.closest('.shareTray')) actions.querySelector('details').open = false;
+    return;
+  }
   if (el.hasAttribute('data-text-size')) {
     adjustArticleText(el);
     return;
