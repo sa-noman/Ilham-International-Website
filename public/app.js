@@ -44,10 +44,11 @@ function itemCard(n){return story(n,img(n)+'<div>'+badge(n)+'<h3>'+safe(n.title)
 function listItem(n){return story(n,img(n)+'<div>'+badge(n)+'<h3>'+safe(n.title)+'</h3></div>','listItem')}
 function wireItem(n,wide){return story(n,'<div class="wireMeta"><time>'+clock(n)+'</time><span>'+safe(n.cat)+'</span>'+(isBreaking(n)?'<strong class="break">ব্রেকিং</strong>':'')+'</div><h3>'+safe(n.title)+'</h3>'+(wide?'<p>'+safe(n.summary)+'</p>':''),'wireItem'+(isBreaking(n)?' flagged':''))}
 function frontUpdates(){
- const recent = wire.slice(0, 7);
- const urgent = wire.find(isBreaking);
- if (!urgent || recent.includes(urgent)) return recent;
- return [urgent, ...recent.slice(0, 6)];
+  const limit = 5;
+  const recent = wire.slice(0, limit);
+  const urgent = wire.find(isBreaking);
+  if (!urgent || recent.includes(urgent)) return recent;
+  return [urgent, ...recent.slice(0, limit - 1)];
 }
 let feedView = 'latest';
 const popularStories = () => ids(['1231','1347','1004','1413','1458']);
