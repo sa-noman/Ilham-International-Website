@@ -404,3 +404,47 @@ main[data-page="videos"] > .watchPage { margin-bottom: 0; }
   .watchList { margin-top: 4px; }
   .watchItem { grid-template-columns: 108px minmax(0, 1fr); }
 }
+
+.pageLoading {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: rgb(255 255 255 / .91);
+  color: #083638;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 160ms ease, visibility 0s linear 160ms;
+}
+
+.pageLoading.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 110ms ease;
+}
+
+.pageSpinner {
+  width: clamp(46px, 6vw, 68px);
+  height: auto;
+  animation: page-spin 900ms steps(12, end) infinite paused;
+}
+
+.pageLoading.is-active .pageSpinner {
+  animation-play-state: running;
+}
+
+.pageLoadingLabel {
+  position: absolute;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@keyframes page-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pageLoading { transition: none; }
+  .pageSpinner { animation: none; }
+}

@@ -258,5 +258,56 @@ document.addEventListener('click',e=>{const el=e.target.closest('a,button');if(!
 document.addEventListener('submit',e=>{if(!e.target.matches('[data-search]'))return;e.preventDefault();const q=e.target.term.value.trim();if(q){document.querySelector('dialog')?.close();location.hash=url('search',q)}});
 window.addEventListener('scroll', syncHeader, { passive: true });
 window.addEventListener('pageshow', syncHeader);
-window.addEventListener('hashchange',()=>{document.querySelector('dialog')?.close();visibleCount=14;showBreaking=false;window.scrollTo(0,0);render()});
-render();
+
+const pageLoading = document.querySelector('#page-loading');
+const publication = document.querySelector('#publication');
+let navigationId = 0;
+
+function visiblePageMedia() {
+  return [...publication.querySelectorAll('img, video[poster]')].filter(element => {
+    const rect = element.getBoundingClientRect();
+    return rect.width && rect.height && rect.bottom > 0 && rect.right > 0 &&
+      rect.top < window.innerHeight && rect.left < window.innerWidth;
+  });
+}
+
+async function loadPage(initial = false) {
+  const id = ++navigationId;
+  const minimumDisplay = new Promise(resolve => setTimeout(resolve, 260));
+  publication.setAttribute('aria-busy', 'true');
+  pageLoading.classList.add('is-active');
+
+  if (!initial && document.visibilityState === 'visible') {
+    // Paint the overlay before replacing the current page.
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  }
+  if (id !== navigationId) return;
+
+  try {
+    if (!initial) window.scrollTo(0, 0);
+    render();
+    const mediaReady = visiblePageMedia().map(element => {
+      if (element.tagName === 'IMG') {
+        element.loading = 'eager';
+        return element.decode();
+      }
+      const poster = new Image();
+      poster.src = element.poster;
+      return poster.decode();
+    });
+    await Promise.allSettled([minimumDisplay, document.fonts.ready, ...mediaReady]);
+  } finally {
+    if (id === navigationId) {
+      publication.removeAttribute('aria-busy');
+      pageLoading.classList.remove('is-active');
+    }
+  }
+}
+
+window.addEventListener('hashchange', () => {
+  document.querySelector('dialog')?.close();
+  visibleCount = 14;
+  showBreaking = false;
+  loadPage();
+});
+loadPage(true);
