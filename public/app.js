@@ -331,9 +331,16 @@ async function shareArticleOther(actions) {
 }
 
 function article(n) {
-  const related = select(n.cat).filter(item => item.id !== n.id).slice(0, 3);
+  const titleWords = n.title.split(/[\s,।:?!]+/u).filter(word => word.length >= 5);
+  const candidates = wire.filter(item=>titleWords.some(word=>item.title.includes(word)));
+  const related = [...select(n.cat), ...candidates].filter((item,index,items) =>
+    item.id !== n.id && items.findIndex(candidate=>candidate.id===item.id)===index
+  ).slice(0, 10);
+  const latest = wire.filter(item=>item.id!==n.id).slice(0,5);
+  const popular = popularStories().filter(item=>item.id!==n.id).slice(0,5);
+  const numbered = (title,items) => `<section class="articleRanked"><h2>${title}</h2><ol>${items.map(item=>'<li>'+story(item,safe(item.title))+'</li>').join('')}</ol></section>`;
   const published = byDate(n, {day:'numeric', month:'long', year:'numeric'});
-  return `<article class="wrap inside articleReader">
+  return `<div class="wrap articlePage"><aside class="articleSideLeft">${numbered('সর্বশেষ খবর',latest)}${numbered('সর্বাধিক পঠিত',popular)}</aside><article class="inside articleReader">
     ${crumb(n.cat)}
     <header class="articleIntro">
       ${anchor('section',safe(n.cat),n.cat,'desk')}
@@ -345,10 +352,10 @@ function article(n) {
       ${img(n,true)}
     </figure>
     <div class="articleMeta">
-      <div>
-        <strong class="articleByline"><span class="articleBylineMark" aria-hidden="true"></span>${safe(n.author || 'ইলহাম নিউজ')}</strong>
+      <div class="articleAuthor"><span class="articleBylineMark" aria-hidden="true"></span><div>
+        <strong class="articleByline">${safe(n.author || 'ইলহাম নিউজ')}</strong>
         <time datetime="${safe(n.date+'+06:00')}">${icon('time')} প্রকাশ ${published} · ${clock(n)}</time>
-      </div>
+      </div></div>
       ${articleShare(n)}
     </div>
     <p class="articleShareStatus" role="status"></p>
@@ -356,8 +363,12 @@ function article(n) {
       ${n.body.map(paragraph=>`<p>${safe(paragraph)}</p>`).join('')}
       <a class="more" href="${safe(n.source)}" target="_blank" rel="noopener">মূল প্রতিবেদন পড়ুন ${icon('up')}</a>
     </div>
-    ${related.length ? `<aside class="articleRelated">${sectionHead('সম্পর্কিত খবর')}${related.map(shelf).join('')}</aside>` : ''}
-  </article>`;
+  </article>
+    <aside class="articleSideRight"><section class="articleRelated"><h2>সংশ্লিষ্ট খবর</h2>
+      ${related.map((item,index)=>`<div class="articleRelatedItem"${index>=5?' hidden':''}>${story(item,img(item)+'<span>'+safe(item.title)+'</span>')}</div>`).join('')}
+      ${related.length===0?'<p>এই মুহূর্তে সংশ্লিষ্ট খবর নেই।</p>':''}
+      ${related.length>5?'<button type="button" class="articleMore" data-related-more>আরও</button>':''}
+    </section></aside></div>`;
 }
 
 function adjustArticleText(button) {
@@ -423,6 +434,11 @@ document.addEventListener('click',e=>{
   if (share && !share.contains(e.target)) share.open = false;
   const el=e.target.closest('a,button');
   if(!el)return;
+  if (el.hasAttribute('data-related-more')) {
+    document.querySelectorAll('.articleRelatedItem[hidden]').forEach(item=>item.hidden=false);
+    el.remove();
+    return;
+  }
   if (el.hasAttribute('data-text-size')) {
     adjustArticleText(el);
     return;
