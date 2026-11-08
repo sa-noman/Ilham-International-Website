@@ -30,7 +30,7 @@ function icon(name){return '<svg viewBox="0 0 24 24" stroke="currentColor" strok
 const url = (page,param='') => '#'+page+(param?'/'+encodeURIComponent(param):'');
 const anchor = (page,label,param='',cl='') => '<a class="'+cl+'" href="'+url(page,param)+'">'+label+'</a>';
 const story = (n,content,cl='') => anchor('article',content,n.id,cl);
-const img = (n,eager=false) => '<img src="'+safe(n.image)+'" loading="'+(eager?'eager':'lazy')+'" alt="'+safe(n.title)+'">';
+const img = (n,eager=false) => '<span class="imageFrame"><img src="'+safe(n.image)+'" loading="'+(eager?'eager':'lazy')+'" alt="'+safe(n.title||'')+'"></span>';
 const badge = n => '<span class="desk">'+safe(n.cat)+'</span>';
 const logo = (dark=false) => anchor('home','<img src="assets/'+(dark?'brand-light.png':'brand-logo.png')+'" alt="Ilham News">','','logo');
 const tg = (cl='') => '<a class="tg '+cl+'" href="'+telegram+'" target="_blank" rel="noopener">'+icon('telegram')+'টেলিগ্রামে যুক্ত হোন</a>';
@@ -161,7 +161,7 @@ function watch(param){
   return '<section class="wrap inside">'+crumb('ভিডিও')+'<div class="sectionMast"><h1>ভিডিও</h1></div><div class="watchGrid"><div>'+
     '<video controls playsinline preload="metadata" poster="'+safe(current.image)+'" src="'+safe(current.url)+'"></video>'+
     '<h2>'+safe(current.title)+'</h2><p>'+safe(current.description)+'</p></div><aside>'+sectionHead('আরও ভিডিও')+
-    videos.filter(v=>v.id!==current.id).map(v=>anchor('videos','<img src="'+safe(v.image)+'" alt=""><div><small>'+safe(v.duration)+'</small><h3>'+safe(v.title)+'</h3></div>',v.id,'listItem')).join('')+'</aside></div></section>';
+    videos.filter(v=>v.id!==current.id).map(v=>anchor('videos',img(v)+'<div><small>'+safe(v.duration)+'</small><h3>'+safe(v.title)+'</h3></div>',v.id,'listItem')).join('')+'</aside></div></section>';
 }
 function render(){const [page,param]=pageState();let view=home;if(page==='latest')view=latestPage;if(page==='videos')view=()=>watch(param);if(page==='section')view=()=>listing(param,select(param));if(page==='article'&&reportsById.has(param))view=()=>article(reportsById.get(param));if(page==='search')view=()=>searchPage('অনুসন্ধান · '+param,wire.filter(n=>(n.title+' '+n.summary+' '+n.tags.join(' ')).includes(param)));document.querySelector('#publication').innerHTML=header(page,param)+'<main id="main" data-page="'+page+'">'+view()+'</main>'+footer();document.title=(page==='home'?'প্রচ্ছদ':page==='videos'?'ভিডিও':document.querySelector('main h1')?.textContent||'সংবাদ')+' | Ilham News'}
 function dialog(title,body){const d=document.createElement('dialog');returnFocus=document.activeElement;d.innerHTML='<div class="dialogHead"><h2>'+safe(title)+'</h2><button data-close aria-label="বন্ধ করুন">'+icon('close')+'</button></div>'+body;document.body.append(d);d.addEventListener('close',()=>{d.querySelector('video')?.pause();d.remove();returnFocus?.focus()},{once:true});d.showModal()}
