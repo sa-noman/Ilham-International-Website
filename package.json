@@ -1,0 +1,14 @@
+{
+  "name": "ilham-international-website",
+  "version": "0.8.0",
+  "private": true,
+  "type": "module",
+  "description": "Ilham News version 8 editorial design preview",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "node scripts/serve.mjs public",
+    "check": "node --check public/app.js && node --check public/news-data.js && node --check public/videos.js && node scripts/check.mjs",
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/serve.mjs dist"
+  }
+}
