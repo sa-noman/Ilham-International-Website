@@ -247,7 +247,7 @@ function latestPage(){
   return '<div class="wrap inside">'+crumb('সর্বশেষ')+'<div class="bulletinHead"><h1><span class="latestPulse" aria-hidden="true"></span>সর্বশেষ আপডেট</h1><div class="filters">'+
     ['সব আপডেট','শুধু ব্রেকিং'].map((t,i)=>'<button data-filter="'+(i?'breaking':'all')+'" aria-pressed="'+(Boolean(i)===showBreaking)+'">'+t+'</button>').join('')+
     '</div></div><div class="bulletin"><section>'+rows+(items.length?'':'<p>এখন কোনো ব্রেকিং আপডেট নেই।</p>')+
-    (items.length>visibleCount?'<button data-more class="load">আরও আপডেট ↓</button>':'')+'</section><aside>'+tg()+ranked()+'</aside></div></div>';
+    (items.length>visibleCount?'<button data-more class="load">আরও আপডেট ↓</button>':'')+'</section><aside>'+ranked()+'</aside></div></div>';
 }
 function searchPage(title,items){
   return '<section class="wrap inside">'+crumb('অনুসন্ধান')+'<div class="bulletinHead"><h1>'+safe(title)+'</h1><small>'+bn(items.length)+'টি ফলাফল</small></div><div class="searchResults">'+(items.map(shelf).join('')||'<p>কোনো প্রতিবেদন পাওয়া যায়নি।</p>')+'</div></section>';
