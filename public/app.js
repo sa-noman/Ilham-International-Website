@@ -64,7 +64,7 @@ function header(view, section) {
         <a class="navBrand" href="${url('home')}" aria-label="Ilham News প্রচ্ছদ" inert><span></span></a>
         <div class="navLinks">
           ${navLink('home','','প্রচ্ছদ',view,section)}
-          ${navLink('latest','','<b class="dot"></b>সর্বশেষ',view,section)}
+          ${navLink('latest','','সর্বশেষ',view,section)}
           ${categories.map(category => navLink('section',category,category,view,section)).join('')}
           ${navLink('videos','',icon('play')+' ভিডিও',view,section)}
         </div>
@@ -201,17 +201,60 @@ function article(n){
     '<a class="more" href="'+safe(n.source)+'" target="_blank" rel="noopener">মূল প্রতিবেদন পড়ুন '+icon('up')+'</a></section><aside>'+
     (related.length?sectionHead('সম্পর্কিত খবর')+related.map(shelf).join(''):'')+'</aside></div></article>';
 }
-function watch(param){
-  const current=videos.find(v=>v.id===param)||videos[0];
-  if(!current)return '<div class="wrap inside"><h1>ভিডিও</h1></div>';
-  return '<section class="wrap inside">'+crumb('ভিডিও')+'<div class="sectionMast"><h1>ভিডিও</h1></div><div class="watchGrid"><div>'+
-    '<video controls playsinline preload="metadata" poster="'+safe(current.image)+'" src="'+safe(current.url)+'"></video>'+
-    '<h2>'+safe(current.title)+'</h2><p>'+safe(current.description)+'</p></div><aside>'+sectionHead('আরও ভিডিও')+
-    videos.filter(v=>v.id!==current.id).map(v=>anchor('videos',img(v)+'<div><small>'+safe(v.duration)+'</small><h3>'+safe(v.title)+'</h3></div>',v.id,'listItem')).join('')+'</aside></div></section>';
+function watch(param) {
+  const current = videos.find(video => video.id === param) || videos[0];
+  if (!current) {
+    return '<section class="wrap watchPage"><h1>ভিডিও</h1><p>এখন কোনো ভিডিও নেই।</p></section>';
+  }
+
+  const playlist = videos.map(video => `
+    <a class="watchItem" href="${url('videos', video.id)}"${video === current ? ' aria-current="true"' : ''}>
+      ${img(video)}
+      <span><strong>${safe(video.title)}</strong><small>${safe(video.duration)}</small></span>
+    </a>
+  `).join('');
+
+  return `<section class="wrap watchPage">
+    <div class="watchHeading">
+      <h1>ভিডিও</h1>
+      <button class="more" type="button" data-watch-list>সব ভিডিও ${icon('arrow')}</button>
+    </div>
+    <div class="watchGrid">
+      <div class="watchFeature">
+        <div class="watchPlayer">
+          <video playsinline preload="metadata" poster="${safe(current.image)}" src="${safe(current.url)}" aria-labelledby="watch-title"></video>
+          <button type="button" class="watchPlay" data-watch-play aria-label="ভিডিও চালান">
+            <span>${icon('play')}</span>
+          </button>
+        </div>
+        <h2 id="watch-title">${safe(current.title)}</h2>
+        <p>${safe(current.description)}</p>
+      </div>
+      <aside class="watchList" aria-label="সব ভিডিও">${playlist}</aside>
+    </div>
+  </section>`;
+}
+function playFeaturedVideo(button) {
+  const video = button.previousElementSibling;
+  video.controls = true;
+  button.hidden = true;
+  video.focus({ preventScroll: true });
+  video.play().catch(() => {
+    // Native controls remain available if playback does not start.
+  });
 }
 function render(){const [page,param]=pageState();let view=home;if(page==='latest')view=latestPage;if(page==='videos')view=()=>watch(param);if(page==='section')view=()=>listing(param,select(param));if(page==='article'&&reportsById.has(param))view=()=>article(reportsById.get(param));if(page==='search')view=()=>searchPage('অনুসন্ধান · '+param,wire.filter(n=>(n.title+' '+n.summary+' '+n.tags.join(' ')).includes(param)));document.querySelector('#publication').innerHTML=header(page,param)+'<main id="main" data-page="'+page+'">'+view()+'</main>'+footer();syncHeader();document.title=(page==='home'?'প্রচ্ছদ':page==='videos'?'ভিডিও':document.querySelector('main h1')?.textContent||'সংবাদ')+' | Ilham News'}
 function dialog(title,body){const d=document.createElement('dialog');returnFocus=document.activeElement;d.innerHTML='<div class="dialogHead"><h2>'+safe(title)+'</h2><button data-close aria-label="বন্ধ করুন">'+icon('close')+'</button></div>'+body;document.body.append(d);d.addEventListener('close',()=>{d.querySelector('video')?.pause();d.remove();returnFocus?.focus()},{once:true});d.showModal()}
-document.addEventListener('click',e=>{const el=e.target.closest('a,button');if(!el)return;if(el.matches('.navBrand')&&pageState()[0]==='home')window.scrollTo(0,0);if(el.dataset.pane){feedView=el.dataset.pane;document.querySelector('.feedPanel').outerHTML=feedPanel();document.querySelector('.feedTabs [aria-pressed=true]').focus({preventScroll:true});return}if(el.matches('dialog a,[data-close]'))document.querySelector('dialog')?.close();if(el.dataset.tool==='menu')dialog('সব বিভাগ','<div class="menuGrid">'+anchor('home','প্রচ্ছদ')+anchor('latest','সর্বশেষ')+anchor('videos','ভিডিও')+sections.map(s=>anchor('section',s,s)).join('')+'</div>');if(el.dataset.tool==='search')dialog('সংবাদ খুঁজুন','<form data-search><label>শিরোনাম বা বিষয়<input autofocus required type="search" name="term" placeholder="যেমন: ইরান"></label><button>খুঁজুন</button></form>');if(el.dataset.region){region=el.dataset.region;document.querySelector('.world').outerHTML=world();document.querySelector('.tabs [aria-pressed=true]')?.focus({preventScroll:true})}if(el.dataset.filter){showBreaking=el.dataset.filter==='breaking';visibleCount=14;render()}if(el.hasAttribute('data-more')){visibleCount+=14;render()}if(el.dataset.video){const v=videos.find(x=>String(x.id)===el.dataset.video);if(v)dialog(v.title,'<video controls playsinline autoplay poster="'+safe(v.image)+'" src="'+safe(v.url)+'"></video><p>'+safe(v.description)+'</p><a class="more" href="'+safe(v.source)+'" target="_blank" rel="noopener">সূত্র ↗</a>')}});
+document.addEventListener('click',e=>{const el=e.target.closest('a,button');if(!el)return;
+  if (el.hasAttribute('data-watch-play')) {
+    playFeaturedVideo(el);
+    return;
+  }
+  if (el.hasAttribute('data-watch-list')) {
+    document.querySelector('.watchList a')?.focus();
+    return;
+  }
+  if(el.matches('.navBrand')&&pageState()[0]==='home')window.scrollTo(0,0);if(el.dataset.pane){feedView=el.dataset.pane;document.querySelector('.feedPanel').outerHTML=feedPanel();document.querySelector('.feedTabs [aria-pressed=true]').focus({preventScroll:true});return}if(el.matches('dialog a,[data-close]'))document.querySelector('dialog')?.close();if(el.dataset.tool==='menu')dialog('সব বিভাগ','<div class="menuGrid">'+anchor('home','প্রচ্ছদ')+anchor('latest','সর্বশেষ')+anchor('videos','ভিডিও')+sections.map(s=>anchor('section',s,s)).join('')+'</div>');if(el.dataset.tool==='search')dialog('সংবাদ খুঁজুন','<form data-search><label>শিরোনাম বা বিষয়<input autofocus required type="search" name="term" placeholder="যেমন: ইরান"></label><button>খুঁজুন</button></form>');if(el.dataset.region){region=el.dataset.region;document.querySelector('.world').outerHTML=world();document.querySelector('.tabs [aria-pressed=true]')?.focus({preventScroll:true})}if(el.dataset.filter){showBreaking=el.dataset.filter==='breaking';visibleCount=14;render()}if(el.hasAttribute('data-more')){visibleCount+=14;render()}if(el.dataset.video){const v=videos.find(x=>String(x.id)===el.dataset.video);if(v)dialog(v.title,'<video controls playsinline autoplay poster="'+safe(v.image)+'" src="'+safe(v.url)+'"></video><p>'+safe(v.description)+'</p><a class="more" href="'+safe(v.source)+'" target="_blank" rel="noopener">সূত্র ↗</a>')}});
 document.addEventListener('submit',e=>{if(!e.target.matches('[data-search]'))return;e.preventDefault();const q=e.target.term.value.trim();if(q){document.querySelector('dialog')?.close();location.hash=url('search',q)}});
 window.addEventListener('scroll', syncHeader, { passive: true });
 window.addEventListener('pageshow', syncHeader);
