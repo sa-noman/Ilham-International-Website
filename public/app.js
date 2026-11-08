@@ -37,7 +37,53 @@ const tg = (cl='') => '<a class="tg '+cl+'" href="'+telegram+'" target="_blank" 
 const ext = (label,path) => '<a target="_blank" rel="noopener" href="https://ilhamnews.com/'+path+'">'+label+'</a>';
 function pageState(){const parts=location.hash.slice(1).split('/');try{return [parts[0]||'home',decodeURIComponent(parts.slice(1).join('/'))]}catch{return ['home','']}}
 function navLink(page,param,label,view,section){const active=view===page && (page!=='section'||section===param);return '<a href="'+url(page,param)+'"'+(active?' aria-current="page"':'')+'>'+label+'</a>'}
-function header(view,section){return '<header><div class="utility"><div class="wrap"><span>বৃহস্পতিবার, ৫ নভেম্বর ২০২৬ <i></i> ২১ কার্তিক ১৪৩৩</span><div><span class="demo">ডিজাইন প্রিভিউ</span>'+ext(icon('paper')+' ই-পেপার','epaper')+'</div></div></div><div class="mast wrap">'+logo()+'<p>বস্তুনিষ্ঠ সংবাদ । অন্তরালের খবর<br>নির্ভরযোগ্য তথ্য । নিরপেক্ষ বিশ্লেষণ</p><div class="mastActions">'+tg()+ '<button data-tool="search" class="iconbutton" aria-label="সংবাদ খুঁজুন">'+icon('search')+'</button><button data-tool="menu" class="iconbutton" aria-label="সব বিভাগ">'+icon('menu')+'</button></div></div><div class="navBand"><nav class="wrap">'+navLink('home','','প্রচ্ছদ',view,section)+navLink('latest','','<b class="dot"></b>সর্বশেষ',view,section)+['মধ্যপ্রাচ্য','বিশ্ব','বিশ্লেষণ','মতামত','বাংলাদেশ','অর্থনীতি','প্রতিরক্ষা','প্রযুক্তি','এআই','খেলা'].map(s=>navLink('section',s,s,view,section)).join('')+navLink('videos','',icon('play')+' ভিডিও',view,section)+'</nav></div></header>'}
+function header(view, section) {
+  const categories = ['মধ্যপ্রাচ্য','বিশ্ব','বিশ্লেষণ','মতামত','বাংলাদেশ','অর্থনীতি','প্রতিরক্ষা','প্রযুক্তি','এআই','খেলা'];
+  return `<header class="siteHeader">
+    <div class="mastheadTop">
+      <div class="mastheadInner">
+        <div class="utility">
+          <div class="wrap">
+            <span>বৃহস্পতিবার, ৫ নভেম্বর ২০২৬ <i></i> ২১ কার্তিক ১৪৩৩</span>
+            <div><span class="demo">ডিজাইন প্রিভিউ</span>${ext(icon('paper')+' ই-পেপার','epaper')}</div>
+          </div>
+        </div>
+        <div class="mast wrap">
+          ${logo()}
+          <p>বস্তুনিষ্ঠ সংবাদ । অন্তরালের খবর<br>নির্ভরযোগ্য তথ্য । নিরপেক্ষ বিশ্লেষণ</p>
+          <div class="mastActions">
+            ${tg()}
+            <button data-tool="search" class="iconbutton" aria-label="সংবাদ খুঁজুন">${icon('search')}</button>
+            <button data-tool="menu" class="iconbutton" aria-label="সব বিভাগ">${icon('menu')}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="navBand">
+      <nav class="wrap" aria-label="প্রধান মেনু">
+        <a class="navBrand" href="${url('home')}" aria-label="Ilham News প্রচ্ছদ" inert><span></span></a>
+        <div class="navLinks">
+          ${navLink('home','','প্রচ্ছদ',view,section)}
+          ${navLink('latest','','<b class="dot"></b>সর্বশেষ',view,section)}
+          ${categories.map(category => navLink('section',category,category,view,section)).join('')}
+          ${navLink('videos','',icon('play')+' ভিডিও',view,section)}
+        </div>
+      </nav>
+    </div>
+  </header>`;
+}
+
+function syncHeader() {
+  const masthead = document.querySelector('.siteHeader');
+  if (!masthead) return;
+  const wasCompact = masthead.classList.contains('is-compact');
+  // Keep a small gap between collapse and expand thresholds to prevent flicker.
+  const compact = window.scrollY > (wasCompact ? 4 : 20);
+  if (wasCompact === compact) return;
+  masthead.classList.toggle('is-compact', compact);
+  masthead.querySelector('.mastheadTop').inert = compact;
+  masthead.querySelector('.navBrand').inert = !compact;
+}
 const more=(page,param='',label='সব খবর')=>anchor(page,label+' '+icon('arrow'),param,'more');
 function sectionHead(label,action=''){return '<div class="sectionHead"><h2>'+label+'</h2>'+action+'</div>'}
 function itemCard(n){return story(n,img(n)+'<div>'+badge(n)+'<h3>'+safe(n.title)+'</h3></div>','card')}
@@ -163,8 +209,11 @@ function watch(param){
     '<h2>'+safe(current.title)+'</h2><p>'+safe(current.description)+'</p></div><aside>'+sectionHead('আরও ভিডিও')+
     videos.filter(v=>v.id!==current.id).map(v=>anchor('videos',img(v)+'<div><small>'+safe(v.duration)+'</small><h3>'+safe(v.title)+'</h3></div>',v.id,'listItem')).join('')+'</aside></div></section>';
 }
-function render(){const [page,param]=pageState();let view=home;if(page==='latest')view=latestPage;if(page==='videos')view=()=>watch(param);if(page==='section')view=()=>listing(param,select(param));if(page==='article'&&reportsById.has(param))view=()=>article(reportsById.get(param));if(page==='search')view=()=>searchPage('অনুসন্ধান · '+param,wire.filter(n=>(n.title+' '+n.summary+' '+n.tags.join(' ')).includes(param)));document.querySelector('#publication').innerHTML=header(page,param)+'<main id="main" data-page="'+page+'">'+view()+'</main>'+footer();document.title=(page==='home'?'প্রচ্ছদ':page==='videos'?'ভিডিও':document.querySelector('main h1')?.textContent||'সংবাদ')+' | Ilham News'}
+function render(){const [page,param]=pageState();let view=home;if(page==='latest')view=latestPage;if(page==='videos')view=()=>watch(param);if(page==='section')view=()=>listing(param,select(param));if(page==='article'&&reportsById.has(param))view=()=>article(reportsById.get(param));if(page==='search')view=()=>searchPage('অনুসন্ধান · '+param,wire.filter(n=>(n.title+' '+n.summary+' '+n.tags.join(' ')).includes(param)));document.querySelector('#publication').innerHTML=header(page,param)+'<main id="main" data-page="'+page+'">'+view()+'</main>'+footer();syncHeader();document.title=(page==='home'?'প্রচ্ছদ':page==='videos'?'ভিডিও':document.querySelector('main h1')?.textContent||'সংবাদ')+' | Ilham News'}
 function dialog(title,body){const d=document.createElement('dialog');returnFocus=document.activeElement;d.innerHTML='<div class="dialogHead"><h2>'+safe(title)+'</h2><button data-close aria-label="বন্ধ করুন">'+icon('close')+'</button></div>'+body;document.body.append(d);d.addEventListener('close',()=>{d.querySelector('video')?.pause();d.remove();returnFocus?.focus()},{once:true});d.showModal()}
-document.addEventListener('click',e=>{const el=e.target.closest('a,button');if(!el)return;if(el.dataset.pane){feedView=el.dataset.pane;document.querySelector('.feedPanel').outerHTML=feedPanel();document.querySelector('.feedTabs [aria-pressed=true]').focus({preventScroll:true});return}if(el.matches('dialog a,[data-close]'))document.querySelector('dialog')?.close();if(el.dataset.tool==='menu')dialog('সব বিভাগ','<div class="menuGrid">'+anchor('home','প্রচ্ছদ')+anchor('latest','সর্বশেষ')+anchor('videos','ভিডিও')+sections.map(s=>anchor('section',s,s)).join('')+'</div>');if(el.dataset.tool==='search')dialog('সংবাদ খুঁজুন','<form data-search><label>শিরোনাম বা বিষয়<input autofocus required type="search" name="term" placeholder="যেমন: ইরান"></label><button>খুঁজুন</button></form>');if(el.dataset.region){region=el.dataset.region;document.querySelector('.world').outerHTML=world();document.querySelector('.tabs [aria-pressed=true]')?.focus({preventScroll:true})}if(el.dataset.filter){showBreaking=el.dataset.filter==='breaking';visibleCount=14;render()}if(el.hasAttribute('data-more')){visibleCount+=14;render()}if(el.dataset.video){const v=videos.find(x=>String(x.id)===el.dataset.video);if(v)dialog(v.title,'<video controls playsinline autoplay poster="'+safe(v.image)+'" src="'+safe(v.url)+'"></video><p>'+safe(v.description)+'</p><a class="more" href="'+safe(v.source)+'" target="_blank" rel="noopener">সূত্র ↗</a>')}});
+document.addEventListener('click',e=>{const el=e.target.closest('a,button');if(!el)return;if(el.matches('.navBrand')&&pageState()[0]==='home')window.scrollTo(0,0);if(el.dataset.pane){feedView=el.dataset.pane;document.querySelector('.feedPanel').outerHTML=feedPanel();document.querySelector('.feedTabs [aria-pressed=true]').focus({preventScroll:true});return}if(el.matches('dialog a,[data-close]'))document.querySelector('dialog')?.close();if(el.dataset.tool==='menu')dialog('সব বিভাগ','<div class="menuGrid">'+anchor('home','প্রচ্ছদ')+anchor('latest','সর্বশেষ')+anchor('videos','ভিডিও')+sections.map(s=>anchor('section',s,s)).join('')+'</div>');if(el.dataset.tool==='search')dialog('সংবাদ খুঁজুন','<form data-search><label>শিরোনাম বা বিষয়<input autofocus required type="search" name="term" placeholder="যেমন: ইরান"></label><button>খুঁজুন</button></form>');if(el.dataset.region){region=el.dataset.region;document.querySelector('.world').outerHTML=world();document.querySelector('.tabs [aria-pressed=true]')?.focus({preventScroll:true})}if(el.dataset.filter){showBreaking=el.dataset.filter==='breaking';visibleCount=14;render()}if(el.hasAttribute('data-more')){visibleCount+=14;render()}if(el.dataset.video){const v=videos.find(x=>String(x.id)===el.dataset.video);if(v)dialog(v.title,'<video controls playsinline autoplay poster="'+safe(v.image)+'" src="'+safe(v.url)+'"></video><p>'+safe(v.description)+'</p><a class="more" href="'+safe(v.source)+'" target="_blank" rel="noopener">সূত্র ↗</a>')}});
 document.addEventListener('submit',e=>{if(!e.target.matches('[data-search]'))return;e.preventDefault();const q=e.target.term.value.trim();if(q){document.querySelector('dialog')?.close();location.hash=url('search',q)}});
-window.addEventListener('hashchange',()=>{document.querySelector('dialog')?.close();visibleCount=14;showBreaking=false;render();window.scrollTo(0,0)});render();
+window.addEventListener('scroll', syncHeader, { passive: true });
+window.addEventListener('pageshow', syncHeader);
+window.addEventListener('hashchange',()=>{document.querySelector('dialog')?.close();visibleCount=14;showBreaking=false;window.scrollTo(0,0);render()});
+render();
