@@ -796,3 +796,18 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
 @media (max-width:1050px) { main .articlePage { grid-template-columns: minmax(0,1fr) minmax(220px,270px); } }
 @media (max-width:700px) { main .articlePage { display:flex; } }
 @media print { .comments { display:none; } }
+
+/* Article sidebars */
+.articleRanked li a, .articleRelatedItem a { font-size: 18px; font-weight: 700; line-height: 1.5; }
+.articleNewsletter { margin-top: 22px; padding: 22px 16px; border: 1px solid #c5d8c9; border-radius: 12px; text-align: center; }
+.newsletterIcon { display: grid; place-items: center; width: 48px; height: 48px; margin: 0 auto 14px; border-radius: 13px; color: var(--green); background: #edf5ed; }
+.newsletterIcon svg { width: 27px; height: 27px; }
+.articleNewsletter h2 { color: var(--green); font-size: 19px; line-height: 1.45; }
+.articleNewsletter p { color: var(--muted); font-size: 14px; line-height: 1.5; margin: 8px 0 14px; }
+.newsletterForm { display: grid; gap: 8px; }
+.newsletterLabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.newsletterForm input, .newsletterForm button { width: 100%; border-radius: 5px; padding: 9px 10px; font: inherit; }
+.newsletterForm input { border: 1px solid #c5d8c9; background: #fff; }
+.newsletterForm button { background: var(--green); color: white; border: 1px solid var(--green); font-weight: 700; cursor: pointer; }
+.articleNewsletter small { display: block; color: var(--muted); font-size: 12px; margin-top: 12px; }
+.articleNewsletter .newsletterStatus:empty { display: none; }

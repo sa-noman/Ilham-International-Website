@@ -393,6 +393,13 @@ function article(n) {
       ${related.map((item,index)=>`<div class="articleRelatedItem"${index>=5?' hidden':''}>${story(item,img(item)+'<span>'+safe(item.title)+'</span>')}</div>`).join('')}
       ${related.length===0?'<p>এই মুহূর্তে সংশ্লিষ্ট খবর নেই।</p>':''}
       ${related.length>5?'<button type="button" class="articleMore" data-related-more>আরও</button>':(related.length?anchor('section','আরও',n.cat,'articleMore'):'')}
+    </section>
+    <section class="articleNewsletter" aria-labelledby="newsletter-title">
+      <div class="newsletterIcon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></div>
+      <h2 id="newsletter-title">প্রতিদিন সন্ধ্যা ৮:৩০টায় দিনের প্রধান খবর পেতে আপনার ইমেইল দিন।</h2>
+      <p>সন্ধ্যার নির্বাচিত গুরুত্বপূর্ণ খবর সরাসরি আপনার ইনবক্সে।</p>
+      <form class="newsletterForm"><label class="newsletterLabel" for="newsletter-email">আপনার ইমেইল</label><input id="newsletter-email" type="email" placeholder="আপনার ইমেইল" required><button type="submit">সাবস্ক্রাইব</button></form>
+      <small>বিনামূল্যে, যেকোনো সময় আনসাবস্ক্রাইব</small><p class="newsletterStatus" role="status"></p>
     </section></aside></div>`;
 }
 
@@ -587,3 +594,10 @@ window.addEventListener('hashchange', () => {
   loadPage();
 });
 loadPage(true);
+
+// The newsletter box is a design preview until a subscription service is connected.
+document.addEventListener('submit', event => {
+  if (!event.target.matches('.newsletterForm')) return;
+  event.preventDefault();
+  event.target.closest('.articleNewsletter').querySelector('.newsletterStatus').textContent = 'নিউজলেটার সেবাটি এখনো চালু হয়নি।';
+});
