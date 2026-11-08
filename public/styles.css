@@ -455,3 +455,37 @@ main[data-page="videos"] > .watchPage { margin-bottom: 0; }
   .pageLoading { transition: none; }
   .pageSpinner { animation: none; }
 }
+
+/* Cinema illustrations sit in the home video band's outer gutters. */
+main[data-page=home] > .videoBand {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+main[data-page=home] > .videoBand::before,
+main[data-page=home] > .videoBand::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: max(4.5%, calc((100% - 1250px) / 2 - 20px));
+  background-repeat: no-repeat;
+  background-size: auto 100%;
+  opacity: .75;
+  pointer-events: none;
+  z-index: -1;
+}
+main[data-page=home] > .videoBand::before {
+  left: 0;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20300%20360%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23276153%22%20stroke-width%3D%222%22%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2265%22%20r%3D%2291%22%2F%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2265%22%20r%3D%2283%22%20fill%3D%22%23194b40%22%2F%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2265%22%20r%3D%2211%22%20fill%3D%22%23b39550%22%20stroke%3D%22none%22%2F%3E%3Cg%20fill%3D%22%2310352e%22%20stroke%3D%22none%22%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2212%22%20r%3D%2220%22%2F%3E%3Ccircle%20cx%3D%2273%22%20cy%3D%2249%22%20r%3D%2220%22%2F%3E%3Ccircle%20cx%3D%2253%22%20cy%3D%22108%22%20r%3D%2220%22%2F%3E%3Ccircle%20cx%3D%22-9%22%20cy%3D%22108%22%20r%3D%2220%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22M-35%20330C90%20367%20177%20327%20271%20263%22%20stroke-width%3D%2233%22%2F%3E%3Cpath%20d%3D%22M-35%20330C90%20367%20177%20327%20271%20263%22%20stroke%3D%22%2310352e%22%20stroke-width%3D%2221%22%20stroke-dasharray%3D%229%2010%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23092920%22%3E%3Ccircle%20cx%3D%2288%22%20cy%3D%22203%22%20r%3D%2221%22%2F%3E%3Ccircle%20cx%3D%22132%22%20cy%3D%22203%22%20r%3D%2221%22%2F%3E%3Crect%20x%3D%2267%22%20y%3D%22224%22%20width%3D%2288%22%20height%3D%2250%22%20rx%3D%227%22%2F%3E%3Cpath%20d%3D%22m155%20237%2030-13v48l-30-13z%22%2F%3E%3Crect%20x%3D%22103%22%20y%3D%22280%22%20width%3D%2216%22%20height%3D%2212%22%20rx%3D%223%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%23092920%22%20stroke-width%3D%226%22%3E%3Cpath%20d%3D%22m111%20290-28%2070m28-70%2028%2070m-28-70v70%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%22175%22%20cy%3D%22243%22%20r%3D%223%22%20fill%3D%22%23b39550%22%2F%3E%3C%2Fsvg%3E");
+  background-position: left center;
+}
+main[data-page=home] > .videoBand::after {
+  right: 0;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20300%20360%22%3E%3Cpath%20d%3D%22M245%20134C239%20220%20181%20295%2040%20362%22%20fill%3D%22none%22%20stroke%3D%22%23276153%22%20stroke-width%3D%2232%22%2F%3E%3Cpath%20d%3D%22M245%20134C239%20220%20181%20295%2040%20362%22%20fill%3D%22none%22%20stroke%3D%22%2310352e%22%20stroke-width%3D%2220%22%20stroke-dasharray%3D%229%2010%22%2F%3E%3Ccircle%20cx%3D%22270%22%20cy%3D%2261%22%20r%3D%2286%22%20fill%3D%22%23194b40%22%20stroke%3D%22%23276153%22%20stroke-width%3D%222%22%2F%3E%3Cg%20fill%3D%22%2310352e%22%3E%3Ccircle%20cx%3D%22270%22%20cy%3D%229%22%20r%3D%2219%22%2F%3E%3Ccircle%20cx%3D%22220%22%20cy%3D%2245%22%20r%3D%2219%22%2F%3E%3Ccircle%20cx%3D%22238%22%20cy%3D%22103%22%20r%3D%2219%22%2F%3E%3Ccircle%20cx%3D%22299%22%20cy%3D%22103%22%20r%3D%2219%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%22270%22%20cy%3D%2261%22%20r%3D%229%22%20fill%3D%22%23b39550%22%2F%3E%3Cg%20transform%3D%22translate(198%20275)%20rotate(-12)%22%3E%3Crect%20width%3D%2287%22%20height%3D%2265%22%20rx%3D%225%22%20fill%3D%22%23092920%22%2F%3E%3Cpath%20d%3D%22M0%200h87v17H0z%22%20fill%3D%22%23276153%22%2F%3E%3Cpath%20d%3D%22m12%200%2012%2017m13-17%2012%2017M62%200l12%2017%22%20stroke%3D%22%23092920%22%20stroke-width%3D%228%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%22134%22%20cy%3D%22188%22%20r%3D%2222%22%20fill%3D%22none%22%20stroke%3D%22%23276153%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22m129%20177%2016%2011-16%2011z%22%20fill%3D%22%23276153%22%2F%3E%3C%2Fsvg%3E");
+  background-position: right center;
+}
+@media (max-width: 900px) {
+  main[data-page=home] > .videoBand::before,
+  main[data-page=home] > .videoBand::after { display: none; }
+}
