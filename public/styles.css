@@ -471,7 +471,7 @@ main[data-page=home] > .videoBand::after {
   width: max(4.5%, calc((100% - 1250px) / 2));
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  opacity: .38;
+  opacity: .26;
   pointer-events: none;
   z-index: -1;
 }
@@ -514,4 +514,51 @@ main[data-page=home] > .videoBand::after {
 
   .editorialPair .smallNews { border-bottom-color: #ded8c8; }
   .editorialPair .smallNews:last-child { border-bottom: 0; }
+}
+
+/* The extra right inset preserves the shared timestamp divider. */
+.compactUpdate.breakingUpdate { padding-inline-end: 12px; }
+
+.sectionHead h2 a:is(:hover, :focus-visible) {
+  color: var(--interactive-ink, var(--green));
+}
+
+.videoCarousel { position: relative; }
+.videoViewport { overflow: hidden; padding: 3px; margin: -3px; }
+.videoCarousel .videoTiles {
+  display: flex;
+  position: relative;
+  --video-gap: 24px;
+  gap: var(--video-gap);
+}
+.videoCarousel .videoTile {
+  display: block;
+  flex: 0 0 calc((100% - 2 * var(--video-gap)) / 3);
+  min-width: 0;
+}
+.videoCarousel .videoTile strong { margin-top: 8px; }
+.videoArrow {
+  position: absolute;
+  top: 42%;
+  transform: translateY(-50%);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #c4ae76;
+  border-radius: 50%;
+  background: #10352e;
+  color: #ecd9a2;
+}
+.videoArrow:hover { background: #245448; }
+.videoArrow.previous { right: calc(100% + 10px); }
+.videoArrow.previous svg { transform: rotate(180deg); }
+.videoArrow.next { left: calc(100% + 10px); }
+@media (max-width: 1150px) {
+  .videoArrow.previous { right: auto; left: 8px; }
+  .videoArrow.next { left: auto; right: 8px; }
+}
+@media (max-width: 760px) {
+  .videoCarousel .videoTile { flex-basis: 100%; }
 }
