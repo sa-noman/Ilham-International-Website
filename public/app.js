@@ -34,7 +34,7 @@ const icons = {
  print:'<path d="M6 8V3h12v5M6 17H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6zM18 11h1"/>',
  share:'<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="5" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.5m-7.6 6.9 7.6 4.5"/>',
  link:'<path d="m10 14 4-4m-6.5 5.5-1 1a3 3 0 0 0 4.2 4.2l4-4a3 3 0 0 0 0-4.2m1.8-4 1-1a3 3 0 0 0-4.2-4.2l-4 4a3 3 0 0 0 0 4.2"/>',
- facebook:'<circle cx="12" cy="12" r="10"/><path d="M13 19v-8h2l.4-2.5H13V9.2c0-.8.3-1.2 1.3-1.2H16V5.5h-2.1c-2.5 0-3.7 1.4-3.7 3.6v1.4H8V13h2.2v6" fill="currentColor" stroke="none"/>',
+ facebook:'<circle cx="12" cy="12" r="10"/><path d="M13 19v-6h2l.4-2.5H13V9.2c0-.8.3-1.2 1.3-1.2H16V5.5h-2.1c-2.5 0-3.7 1.4-3.7 3.6v1.4H8V13h2.2v6" fill="currentColor" stroke="none"/>',
  twitter:'<path d="M4 4h4.5L20 20h-4.5L4 4Zm15.5 0L4.5 20"/>',
  instagram:'<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.7" r=".8" fill="currentColor" stroke="none"/>',
  whatsapp:'<path d="M20.7 11.7a8.7 8.7 0 0 1-12.9 7.6L4 20.5l1.2-3.8a8.7 8.7 0 1 1 15.5-5Z"/><path d="M8.5 8c-.7.3-.9 1.1-.5 2.1 1 2.5 3.3 4.8 5.9 5.6.9.3 1.7-.1 2.1-.8l-2.4-1.4-.9.8a7.4 7.4 0 0 1-3.1-3.1l.8-.9L9.1 8Z" fill="currentColor" stroke="none"/>',
