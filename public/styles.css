@@ -751,12 +751,26 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
 .articleNewsletter small { display: block; color: var(--muted); font-size: 12px; margin-top: 12px; }
 .articleNewsletter .newsletterStatus:empty { display: none; }
 
-/* Give the article sidebars more room on wide screens without stretching the story. */
+/* Shared page width on wide desktops. */
 @media screen and (min-width: 1380px) {
-  main .articlePage,
-  body:has(.articlePage) .siteHeader:not(.is-compact) .wrap {
-    width: 94%;
-    max-width: 1450px;
+  :root {
+    --wide-page-width: min(94vw, 1450px);
+  }
+
+  main .wrap,
+  .siteHeader:not(.is-compact) .wrap,
+  footer .wrap {
+    width: var(--wide-page-width);
+    max-width: 100%;
+  }
+
+  main[data-page=home] > .videoBand::before,
+  main[data-page=home] > .videoBand::after {
+    width: calc((100% - var(--wide-page-width)) / 2);
+  }
+
+  .openingGrid {
+    grid-template-columns: minmax(0, .85fr) minmax(0, 558px) minmax(0, .95fr);
   }
 
   main .articlePage {
