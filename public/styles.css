@@ -596,7 +596,8 @@ main[data-page=latest] .bulletinHead h1 {
   .latestPulse, .latestPulse::after { animation: none; }
 }
 
-.latestHeader { position: relative; display: flow-root; }
+.latestHeader { position: relative; display: flow-root; margin-bottom: 22px; }
+.latestHeader > .bulletinHead { margin-bottom: 0; }
 .latestHeader > :not(.latestSheen) { position: relative; }
 .latestSheen { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .latestSheen::before {
