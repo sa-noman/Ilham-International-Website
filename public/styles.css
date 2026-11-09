@@ -625,7 +625,7 @@ main .articleReader { max-width: 820px; }
 .articleIntro h1 { font-size: clamp(29px, 3.5vw, 46px); line-height: 1.35; margin: 8px 0 10px; }
 .articleIntro p { font: 400 clamp(18px, 2vw, 24px)/1.55 var(--serif); color: var(--muted); }
 .articlePhoto { margin: 22px 0 0; }
-.articlePhoto img { border-radius: 6px; }
+.articlePhoto img { height: auto; border-radius: 0; object-fit: contain; }
 .articlePhoto figcaption { margin-top: 8px; color: var(--muted); font-size: 14px; }
 .articleMeta {
   margin-top: 14px;
