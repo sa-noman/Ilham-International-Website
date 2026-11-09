@@ -750,3 +750,17 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
 .newsletterForm button { background: var(--green); color: white; border: 1px solid var(--green); font-weight: 700; cursor: pointer; }
 .articleNewsletter small { display: block; color: var(--muted); font-size: 12px; margin-top: 12px; }
 .articleNewsletter .newsletterStatus:empty { display: none; }
+
+/* Give the article sidebars more room on wide screens without stretching the story. */
+@media screen and (min-width: 1380px) {
+  main .articlePage,
+  body:has(.articlePage) .siteHeader:not(.is-compact) .wrap {
+    width: 94%;
+    max-width: 1450px;
+  }
+
+  main .articlePage {
+    grid-template-columns: minmax(210px, 1fr) minmax(0, 697px) minmax(295px, 1.35fr);
+    column-gap: clamp(24px, 2vw, 40px);
+  }
+}
