@@ -119,13 +119,52 @@ function frontUpdates(){
 let feedView = 'latest';
 const popularStories = () => ids(['1231','1347','1004','1413','1458']);
 function compactUpdate(n){return story(n,'<time>'+clock(n)+'</time><div>'+(isBreaking(n)?'<strong class="break">ব্রেকিং</strong>':'')+'<h3>'+safe(n.title)+'</h3></div>','compactUpdate'+(isBreaking(n)?' breakingUpdate':''));}
-function feedPanel(){
-  const tabs = [['latest','সর্বশেষ'],['popular','সর্বাধিক পঠিত']].map(([key,label]) =>
-    '<button data-pane="'+key+'" aria-pressed="'+(feedView===key)+'">'+label+'</button>').join('');
-  const contents = feedView==='latest'
-    ? frontUpdates().map(compactUpdate).join('')+more('latest','','সব আপডেট দেখুন')
-    : '<ol>'+popularStories().map(n=>'<li>'+story(n,'<h3>'+safe(n.title)+'</h3>')+'</li>').join('')+'</ol>';
-  return '<aside class="feedPanel"><div class="feedTabs" role="group" aria-label="খবরের তালিকা">'+tabs+'</div><div class="feedBody">'+contents+'</div></aside>';
+function feedPanel() {
+  const panes = [['latest','সর্বশেষ'],['popular','সর্বাধিক পঠিত'],['discussed','সর্বাধিক আলোচিত']];
+  const tabs = panes.map(([key,label]) => {
+    const selected = feedView===key;
+    return `<button type="button" role="tab" id="feed-tab-${key}" aria-controls="feed-${key}" data-pane="${key}" aria-selected="${selected}" tabindex="${selected?0:-1}">${label}</button>`;
+  }).join('');
+  const discussed = wire.map(item => {
+    const comments = readComments(item.id);
+    return {item, count: comments.length + comments.reduce((total, comment)=>total+(comment.replies?.length||0),0)};
+  }).filter(({count})=>count>0).sort((a,b)=>b.count-a.count).slice(0,5).map(({item})=>item);
+  const rankedList = items => '<ol>'+items.map(n=>'<li>'+story(n,'<h3>'+safe(n.title)+'</h3>')+'</li>').join('')+'</ol>';
+  const contents = {
+    latest: frontUpdates().map(compactUpdate).join('')+more('latest','','সব আপডেট দেখুন'),
+    popular: rankedList(popularStories()),
+    discussed: discussed.length ? rankedList(discussed) : '<p class="feedEmpty">এখনো কোনো মন্তব্য নেই।</p>'
+  };
+  const panels = panes.map(([key]) => `<div class="feedPane${feedView===key?'':' is-hidden'}" id="feed-${key}" role="tabpanel" aria-labelledby="feed-tab-${key}"${feedView===key?'':' inert'}><div>${contents[key]}</div></div>`).join('');
+  return `<aside class="feedPanel"><div class="feedTabs" role="tablist" aria-label="খবরের তালিকা">
+    <span class="feedIndicator" aria-hidden="true"></span>${tabs}</div><div class="feedBody">${panels}</div></aside>`;
+}
+
+function measureFeedTab() {
+  const tabs = document.querySelector('.feedTabs');
+  if (!tabs) return;
+  const selected = tabs.querySelector('[aria-selected="true"]');
+  tabs.style.setProperty('--feed-indicator-x', selected.offsetLeft+'px');
+  tabs.style.setProperty('--feed-indicator-y', selected.offsetTop+selected.offsetHeight+'px');
+  tabs.style.setProperty('--feed-indicator-width', selected.offsetWidth+'px');
+  if (!tabs.classList.contains('is-ready')) {
+    tabs.querySelector('.feedIndicator').getBoundingClientRect();
+    tabs.classList.add('is-ready');
+  }
+}
+
+function switchFeedTab(button) {
+  feedView = button.dataset.pane;
+  const feed = button.closest('.feedPanel');
+  for (const tab of feed.querySelectorAll('[role="tab"]')) {
+    const selected = tab===button;
+    tab.setAttribute('aria-selected', String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+    const panel = document.getElementById(tab.getAttribute('aria-controls'));
+    panel.classList.toggle('is-hidden', !selected);
+    panel.inert = !selected;
+  }
+  measureFeedTab();
 }
 function mobileAlert(){const n=wire.find(isBreaking);return n?anchor('latest','<strong>ব্রেকিং</strong><span>'+safe(n.title)+'</span>'+icon('arrow'),'','mobileFlash'):''}
 function briefRow(n,label){
@@ -391,7 +430,10 @@ async function shareArticleOther(actions) {
 }
 
 function readComments(id) {
-  try { return JSON.parse(localStorage.getItem('ilham-comments-'+id) || '[]'); }
+  try {
+    const comments = JSON.parse(localStorage.getItem('ilham-comments-'+id) || '[]');
+    return Array.isArray(comments) ? comments : [];
+  }
   catch { return []; }
 }
 function commentsSection(id) {
@@ -533,7 +575,7 @@ function playFeaturedVideo(button) {
     // Native controls remain available if playback does not start.
   });
 }
-function render(){const [page,param]=pageState();let view=home;if(page==='latest')view=latestPage;if(page==='videos')view=()=>watch(param);if(page==='section')view=()=>listing(param,select(param));if(page==='article'&&reportsById.has(param))view=()=>article(reportsById.get(param));if(page==='search')view=()=>searchPage('অনুসন্ধান · '+param,wire.filter(n=>(n.title+' '+n.summary+' '+n.tags.join(' ')).includes(param)));document.querySelector('#publication').innerHTML=header(page,param)+'<main id="main" data-page="'+page+'">'+view()+'</main>'+footer();syncHeader();scheduleVideos();if(page==='latest'){
+function render(){const [page,param]=pageState();let view=home;if(page==='latest')view=latestPage;if(page==='videos')view=()=>watch(param);if(page==='section')view=()=>listing(param,select(param));if(page==='article'&&reportsById.has(param))view=()=>article(reportsById.get(param));if(page==='search')view=()=>searchPage('অনুসন্ধান · '+param,wire.filter(n=>(n.title+' '+n.summary+' '+n.tags.join(' ')).includes(param)));document.querySelector('#publication').innerHTML=header(page,param)+'<main id="main" data-page="'+page+'">'+view()+'</main>'+footer();syncHeader();scheduleVideos();measureFeedTab();if(page==='home')document.fonts.ready.then(measureFeedTab);if(page==='latest'){
     syncLatestList();
     const main=document.querySelector('main[data-page=latest]');
     main.getBoundingClientRect();
@@ -542,11 +584,13 @@ function render(){const [page,param]=pageState();let view=home;if(page==='latest
   }document.title=(page==='home'?'প্রচ্ছদ':page==='videos'?'ভিডিও':document.querySelector('main h1')?.textContent||'সংবাদ')+' | Ilham News'}
 function dialog(title,body){const d=document.createElement('dialog');returnFocus=document.activeElement;d.innerHTML='<div class="dialogHead"><h2>'+safe(title)+'</h2><button data-close aria-label="বন্ধ করুন">'+icon('close')+'</button></div>'+body;document.body.append(d);d.addEventListener('close',()=>{d.querySelector('video')?.pause();d.remove();returnFocus?.focus()},{once:true});d.showModal()}
 document.addEventListener('keydown',event=>{
-  const tab = event.target.closest('.latestFilters [role="tab"]');
+  const tab = event.target.closest(':is(.latestFilters, .feedTabs) [role="tab"]');
   if (tab && ['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) {
     event.preventDefault();
-    const [first,last] = tab.parentElement.querySelectorAll('[role="tab"]');
-    const next = event.key==='Home' ? first : event.key==='End' ? last : tab===first ? last : first;
+    const tabs = [...tab.parentElement.querySelectorAll('[role="tab"]')];
+    const index = tabs.indexOf(tab);
+    const step = event.key==='ArrowLeft' ? -1 : 1;
+    const next = event.key==='Home' ? tabs[0] : event.key==='End' ? tabs.at(-1) : tabs[(index+step+tabs.length)%tabs.length];
     next.focus();
     next.click();
     return;
@@ -562,6 +606,7 @@ document.addEventListener('click',e=>{
   if (share && !share.contains(e.target)) share.open = false;
   const el=e.target.closest('a,button');
   if(!el)return;
+  if (el.matches('.feedTabs [data-pane]')) { switchFeedTab(el); return; }
   if (el.matches('.latestFilters [data-filter]')) {
     showBreaking = el.dataset.filter === 'breaking';
     syncLatestList();
@@ -619,7 +664,7 @@ document.addEventListener('click',e=>{
     document.querySelector('.watchList a')?.focus();
     return;
   }
-  if(el.matches('.navBrand')&&pageState()[0]==='home')window.scrollTo(0,0);if(el.dataset.pane){feedView=el.dataset.pane;document.querySelector('.feedPanel').outerHTML=feedPanel();document.querySelector('.feedTabs [aria-pressed=true]').focus({preventScroll:true});return}if(el.matches('dialog a,[data-close]'))document.querySelector('dialog')?.close();if(el.dataset.tool==='menu')dialog('সব বিভাগ','<div class="menuGrid">'+anchor('home','প্রচ্ছদ')+anchor('latest','সর্বশেষ')+anchor('videos','ভিডিও')+sections.map(s=>anchor('section',s,s)).join('')+'</div>');if(el.dataset.tool==='search')dialog('সংবাদ খুঁজুন','<form data-search><label>শিরোনাম বা বিষয়<input autofocus required type="search" name="term" placeholder="যেমন: ইরান"></label><button>খুঁজুন</button></form>');if(el.dataset.region){region=el.dataset.region;document.querySelector('.world').outerHTML=world();document.querySelector('.tabs [aria-pressed=true]')?.focus({preventScroll:true})}if(el.dataset.video){const v=videos.find(x=>String(x.id)===el.dataset.video);if(v)dialog(v.title,'<video controls playsinline autoplay poster="'+safe(v.image)+'" src="'+safe(v.url)+'"></video><p>'+safe(v.description)+'</p><a class="more" href="'+safe(v.source)+'" target="_blank" rel="noopener">সূত্র ↗</a>')}});
+  if(el.matches('.navBrand')&&pageState()[0]==='home')window.scrollTo(0,0);if(el.matches('dialog a,[data-close]'))document.querySelector('dialog')?.close();if(el.dataset.tool==='menu')dialog('সব বিভাগ','<div class="menuGrid">'+anchor('home','প্রচ্ছদ')+anchor('latest','সর্বশেষ')+anchor('videos','ভিডিও')+sections.map(s=>anchor('section',s,s)).join('')+'</div>');if(el.dataset.tool==='search')dialog('সংবাদ খুঁজুন','<form data-search><label>শিরোনাম বা বিষয়<input autofocus required type="search" name="term" placeholder="যেমন: ইরান"></label><button>খুঁজুন</button></form>');if(el.dataset.region){region=el.dataset.region;document.querySelector('.world').outerHTML=world();document.querySelector('.tabs [aria-pressed=true]')?.focus({preventScroll:true})}if(el.dataset.video){const v=videos.find(x=>String(x.id)===el.dataset.video);if(v)dialog(v.title,'<video controls playsinline autoplay poster="'+safe(v.image)+'" src="'+safe(v.url)+'"></video><p>'+safe(v.description)+'</p><a class="more" href="'+safe(v.source)+'" target="_blank" rel="noopener">সূত্র ↗</a>')}});
 document.addEventListener('submit',e=>{
   if (e.target.matches('[data-comments]')) {
     e.preventDefault();
@@ -693,7 +738,9 @@ async function loadPage(initial = false) {
 }
 
 window.addEventListener('resize', measureLatestFilter);
+window.addEventListener('resize', measureFeedTab);
 document.fonts.addEventListener('loadingdone', measureLatestFilter);
+document.fonts.addEventListener('loadingdone', measureFeedTab);
 
 window.addEventListener('hashchange', () => {
   document.querySelector('dialog')?.close();
