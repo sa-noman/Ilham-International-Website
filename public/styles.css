@@ -903,15 +903,11 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
 .feedTabs.is-ready .feedIndicator {
   transition: transform .38s cubic-bezier(.3,.7,.2,1), width .38s cubic-bezier(.3,.7,.2,1);
 }
-.feedPane {
-  display: grid;
-  grid-template-rows: 1fr;
-  transition: grid-template-rows .38s cubic-bezier(.3,.7,.2,1), opacity .3s;
-}
-.feedPane > div { min-height: 0; min-width: 0; overflow: hidden; }
-.feedPane.is-hidden { grid-template-rows: 0fr; opacity: 0; pointer-events: none; }
-.feedPane a:focus-visible { outline-offset: -3px; }
+.slidingPanes { position: relative; overflow: hidden; min-width: 0; }
+.slidingPane.is-leaving { position: absolute; inset: 0 0 auto; pointer-events: none; }
+.slidingPane a:focus-visible { outline-offset: -3px; }
+.world .tabs button[aria-selected="true"] { color: var(--green); border-bottom: 2px solid var(--gold); }
 .feedEmpty { padding: 14px 0; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) {
-  .feedTabs.is-ready .feedIndicator, .feedPane { transition: none; }
+  .feedTabs.is-ready .feedIndicator { transition: none; }
 }

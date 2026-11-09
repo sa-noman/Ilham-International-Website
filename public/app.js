@@ -135,9 +135,9 @@ function feedPanel() {
     popular: rankedList(popularStories()),
     discussed: discussed.length ? rankedList(discussed) : '<p class="feedEmpty">এখনো কোনো মন্তব্য নেই।</p>'
   };
-  const panels = panes.map(([key]) => `<div class="feedPane${feedView===key?'':' is-hidden'}" id="feed-${key}" role="tabpanel" aria-labelledby="feed-tab-${key}"${feedView===key?'':' inert'}><div>${contents[key]}</div></div>`).join('');
+  const panels = panes.map(([key]) => `<div class="slidingPane" id="feed-${key}" role="tabpanel" aria-labelledby="feed-tab-${key}"${feedView===key?'':' hidden inert'}><div>${contents[key]}</div></div>`).join('');
   return `<aside class="feedPanel"><div class="feedTabs" role="tablist" aria-label="খবরের তালিকা">
-    <span class="feedIndicator" aria-hidden="true"></span>${tabs}</div><div class="feedBody">${panels}</div></aside>`;
+    <span class="feedIndicator" aria-hidden="true"></span>${tabs}</div><div class="feedBody slidingPanes">${panels}</div></aside>`;
 }
 
 function measureFeedTab() {
@@ -153,17 +153,52 @@ function measureFeedTab() {
   }
 }
 
+const slideCleanup = new WeakMap();
+
+function selectSlidingTab(button) {
+  const tabList = button.parentElement;
+  const tabs = [...tabList.querySelectorAll('[role="tab"]')];
+  const current = tabs.find(tab=>tab.getAttribute('aria-selected')==='true');
+  if (button===current) return;
+
+  const outgoing = document.getElementById(current.getAttribute('aria-controls'));
+  const incoming = document.getElementById(button.getAttribute('aria-controls'));
+  const viewport = incoming.parentElement;
+  slideCleanup.get(viewport)?.();
+
+  const direction = tabs.indexOf(button)>tabs.indexOf(current) ? 1 : -1;
+  current.setAttribute('aria-selected','false');
+  current.tabIndex = -1;
+  button.setAttribute('aria-selected','true');
+  button.tabIndex = 0;
+  outgoing.inert = true;
+  incoming.hidden = false;
+  incoming.inert = false;
+
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    outgoing.hidden = true;
+    return;
+  }
+
+  outgoing.classList.add('is-leaving');
+  const options = {duration:380,easing:'cubic-bezier(.3,.7,.2,1)'};
+  const enter = incoming.animate([{transform:`translateX(${direction*100}%)`},{transform:'translateX(0)'}],options);
+  const exit = outgoing.animate([{transform:'translateX(0)'},{transform:`translateX(${direction*-100}%)`}],options);
+  const finish = () => {
+    enter.onfinish = null;
+    enter.cancel();
+    exit.cancel();
+    outgoing.hidden = true;
+    outgoing.classList.remove('is-leaving');
+    slideCleanup.delete(viewport);
+  };
+  slideCleanup.set(viewport,finish);
+  enter.onfinish = finish;
+}
+
 function switchFeedTab(button) {
   feedView = button.dataset.pane;
-  const feed = button.closest('.feedPanel');
-  for (const tab of feed.querySelectorAll('[role="tab"]')) {
-    const selected = tab===button;
-    tab.setAttribute('aria-selected', String(selected));
-    tab.tabIndex = selected ? 0 : -1;
-    const panel = document.getElementById(tab.getAttribute('aria-controls'));
-    panel.classList.toggle('is-hidden', !selected);
-    panel.inert = !selected;
-  }
+  selectSlidingTab(button);
   measureFeedTab();
 }
 function mobileAlert(){const n=wire.find(isBreaking);return n?anchor('latest','<strong>ব্রেকিং</strong><span>'+safe(n.title)+'</span>'+icon('arrow'),'','mobileFlash'):''}
@@ -246,11 +281,18 @@ function scheduleVideos() {
     }
   },4000);
 }
-function world(){
-  const items=region==='বিশ্ব'?ids(['1465','1473','1482','1454','1481','1433','1376']):select(region);
-  return '<section class="world">'+sectionHead('আন্তর্জাতিক','section','আন্তর্জাতিক')+
-    '<div class="tabs">'+regions.map(s=>'<button data-region="'+s+'" aria-pressed="'+(s===region)+'">'+s+'</button>').join('')+
-    '</div>'+storySpread(items)+'</section>';
+function world() {
+  const tabs = regions.map((name,index) => {
+    const selected = name===region;
+    return `<button type="button" role="tab" id="region-tab-${index}" aria-controls="region-${index}" data-region="${name}" aria-selected="${selected}" tabindex="${selected?0:-1}">${name}</button>`;
+  }).join('');
+  const panels = regions.map((name,index) => {
+    const items = name==='বিশ্ব' ? ids(['1465','1473','1482','1454','1481','1433','1376']) : select(name);
+    return `<div class="slidingPane" id="region-${index}" role="tabpanel" aria-labelledby="region-tab-${index}"${name===region?'':' hidden inert'}>${storySpread(items)}</div>`;
+  }).join('');
+  return `<section class="world">${sectionHead('আন্তর্জাতিক','section','আন্তর্জাতিক')}
+    <div class="tabs" role="tablist" aria-label="অঞ্চল">${tabs}</div><div class="slidingPanes">${panels}</div>
+  </section>`;
 }
 function department(tag){return '<section class="department">'+sectionHead(tag,'section',tag)+select(tag).slice(0,3).map(n=>briefRow(n)).join('')+'</section>'}
 function opinion(){return '<section class="opinion">'+sectionHead('মতামত','section','মতামত')+'<div class="grid3">'+select('মতামত').slice(0,3).map(n=>story(n,'<small>'+safe(n.author||'মতামত বিভাগ')+'</small><h3>'+safe(n.title)+'</h3>')).join('')+'</div></section>'}
@@ -584,7 +626,7 @@ function render(){const [page,param]=pageState();let view=home;if(page==='latest
   }document.title=(page==='home'?'প্রচ্ছদ':page==='videos'?'ভিডিও':document.querySelector('main h1')?.textContent||'সংবাদ')+' | Ilham News'}
 function dialog(title,body){const d=document.createElement('dialog');returnFocus=document.activeElement;d.innerHTML='<div class="dialogHead"><h2>'+safe(title)+'</h2><button data-close aria-label="বন্ধ করুন">'+icon('close')+'</button></div>'+body;document.body.append(d);d.addEventListener('close',()=>{d.querySelector('video')?.pause();d.remove();returnFocus?.focus()},{once:true});d.showModal()}
 document.addEventListener('keydown',event=>{
-  const tab = event.target.closest(':is(.latestFilters, .feedTabs) [role="tab"]');
+  const tab = event.target.closest(':is(.latestFilters, .feedTabs, .world .tabs) [role="tab"]');
   if (tab && ['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) {
     event.preventDefault();
     const tabs = [...tab.parentElement.querySelectorAll('[role="tab"]')];
@@ -607,6 +649,11 @@ document.addEventListener('click',e=>{
   const el=e.target.closest('a,button');
   if(!el)return;
   if (el.matches('.feedTabs [data-pane]')) { switchFeedTab(el); return; }
+  if (el.matches('.world [data-region]')) {
+    region = el.dataset.region;
+    selectSlidingTab(el);
+    return;
+  }
   if (el.matches('.latestFilters [data-filter]')) {
     showBreaking = el.dataset.filter === 'breaking';
     syncLatestList();
@@ -664,7 +711,7 @@ document.addEventListener('click',e=>{
     document.querySelector('.watchList a')?.focus();
     return;
   }
-  if(el.matches('.navBrand')&&pageState()[0]==='home')window.scrollTo(0,0);if(el.matches('dialog a,[data-close]'))document.querySelector('dialog')?.close();if(el.dataset.tool==='menu')dialog('সব বিভাগ','<div class="menuGrid">'+anchor('home','প্রচ্ছদ')+anchor('latest','সর্বশেষ')+anchor('videos','ভিডিও')+sections.map(s=>anchor('section',s,s)).join('')+'</div>');if(el.dataset.tool==='search')dialog('সংবাদ খুঁজুন','<form data-search><label>শিরোনাম বা বিষয়<input autofocus required type="search" name="term" placeholder="যেমন: ইরান"></label><button>খুঁজুন</button></form>');if(el.dataset.region){region=el.dataset.region;document.querySelector('.world').outerHTML=world();document.querySelector('.tabs [aria-pressed=true]')?.focus({preventScroll:true})}if(el.dataset.video){const v=videos.find(x=>String(x.id)===el.dataset.video);if(v)dialog(v.title,'<video controls playsinline autoplay poster="'+safe(v.image)+'" src="'+safe(v.url)+'"></video><p>'+safe(v.description)+'</p><a class="more" href="'+safe(v.source)+'" target="_blank" rel="noopener">সূত্র ↗</a>')}});
+  if(el.matches('.navBrand')&&pageState()[0]==='home')window.scrollTo(0,0);if(el.matches('dialog a,[data-close]'))document.querySelector('dialog')?.close();if(el.dataset.tool==='menu')dialog('সব বিভাগ','<div class="menuGrid">'+anchor('home','প্রচ্ছদ')+anchor('latest','সর্বশেষ')+anchor('videos','ভিডিও')+sections.map(s=>anchor('section',s,s)).join('')+'</div>');if(el.dataset.tool==='search')dialog('সংবাদ খুঁজুন','<form data-search><label>শিরোনাম বা বিষয়<input autofocus required type="search" name="term" placeholder="যেমন: ইরান"></label><button>খুঁজুন</button></form>');if(el.dataset.video){const v=videos.find(x=>String(x.id)===el.dataset.video);if(v)dialog(v.title,'<video controls playsinline autoplay poster="'+safe(v.image)+'" src="'+safe(v.url)+'"></video><p>'+safe(v.description)+'</p><a class="more" href="'+safe(v.source)+'" target="_blank" rel="noopener">সূত্র ↗</a>')}});
 document.addEventListener('submit',e=>{
   if (e.target.matches('[data-comments]')) {
     e.preventDefault();
