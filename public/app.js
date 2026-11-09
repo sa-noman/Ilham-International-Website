@@ -284,20 +284,17 @@ function articleShare(n) {
     ['whatsapp', 'হোয়াটসঅ্যাপ', 'https://wa.me/?text='+title+'%20'+link]
   ];
   return `<div class="articleActions" data-article-link="${safe(permalink.href)}">
-      <div class="articleTextControls" role="group" aria-label="লেখার আকার">
-        <button type="button" data-text-size="-1" aria-label="লেখা ছোট করুন">−</button>
-        <button type="button" data-text-size="0" aria-label="স্বাভাবিক আকারে ফেরান">অ</button>
-        <button type="button" data-text-size="1" aria-label="লেখা বড় করুন">+</button>
-      </div>
-    <details class="articleShare">
-      <summary class="articleAction" aria-label="শেয়ার" title="শেয়ার">${icon('share')}</summary>
-      <div class="shareTray" role="group" aria-label="শেয়ার করার মাধ্যম">
-        ${platforms.map(([id,label,href])=>`<a class="sharePlatform ${id}" href="${safe(href)}" target="_blank" rel="noopener"${id==='instagram'?' data-instagram title="লিংক কপি করে ইন্সটাগ্রাম খুলুন"':''}>${icon(id)}<span>${label}</span></a>`).join('')}
-        <button type="button" class="sharePlatform" data-share-other>${icon('more')}<span>অন্যান্য</span></button>
-      </div>
-    </details>
-    <button type="button" class="articleAction" data-copy-article aria-label="লিংক কপি" title="লিংক কপি">${icon('link')}</button>
-    <button type="button" class="articleAction" data-print-article aria-label="প্রিন্ট" title="প্রিন্ট">${icon('print')}</button>
+    <div class="articleShareControls" role="group" aria-label="শেয়ার করার মাধ্যম">
+      ${platforms.map(([id,label,href])=>`<a class="articleAction" href="${safe(href)}" target="_blank" rel="noopener" aria-label="${label}" title="${id==='instagram'?'লিংক কপি করে ইন্সটাগ্রাম খুলুন':label}"${id==='instagram'?' data-instagram':''}>${icon(id)}</a>`).join('')}
+      <button type="button" class="articleAction" data-share-other aria-label="অন্যান্য মাধ্যমে শেয়ার" title="অন্যান্য মাধ্যমে শেয়ার">${icon('share')}</button>
+      <button type="button" class="articleAction" data-copy-article aria-label="লিংক কপি" title="লিংক কপি">${icon('link')}</button>
+    </div>
+    <div class="articleTextControls" role="group" aria-label="লেখার আকার ও প্রিন্ট">
+      <button type="button" data-text-size="-1" aria-label="লেখা ছোট করুন">−</button>
+      <button type="button" data-text-size="0" aria-label="স্বাভাবিক আকারে ফেরান">অ</button>
+      <button type="button" data-text-size="1" aria-label="লেখা বড় করুন">+</button>
+      <button type="button" class="articleAction" data-print-article aria-label="প্রিন্ট" title="প্রিন্ট">${icon('print')}</button>
+    </div>
   </div>`;
 }
 
@@ -371,10 +368,6 @@ function article(n) {
       <h1>${safe(n.title)}</h1>
       <p>${safe(n.summary)}</p>
     </header>
-    <figure class="articlePhoto">
-      ${img(n,true)}
-      ${n.caption ? `<figcaption>${safe(n.caption)}</figcaption>` : ''}
-    </figure>
     <div class="articleMeta">
       <div class="articleAuthor"><div>
         <strong class="articleByline">${safe(n.author || 'ইলহাম নিউজ')}</strong>
@@ -383,6 +376,10 @@ function article(n) {
       ${articleShare(n)}
     </div>
     <p class="articleShareStatus" role="status"></p>
+    <figure class="articlePhoto">
+      ${img(n,true)}
+      ${n.caption ? `<figcaption>${safe(n.caption)}</figcaption>` : ''}
+    </figure>
     <div class="articleBody">
       ${n.body.map(paragraph=>`<p>${safe(paragraph)}</p>`).join('')}
       <a class="more" href="${safe(n.source)}" target="_blank" rel="noopener">মূল প্রতিবেদন পড়ুন ${icon('up')}</a>
@@ -498,7 +495,6 @@ document.addEventListener('click',e=>{
     if (el.hasAttribute('data-print-article')) window.print();
     if (el.matches('[data-copy-article], [data-instagram]')) copyArticleLink(actions, el.hasAttribute('data-instagram'));
     if (el.hasAttribute('data-share-other')) shareArticleOther(actions);
-    if (el.closest('.shareTray')) actions.querySelector('details').open = false;
     return;
   }
   if (el.hasAttribute('data-video-step')) {
