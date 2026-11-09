@@ -818,14 +818,15 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 8px 12px;
-  background: #f0f5ef;
-  color: var(--green);
-  font-size: 14px;
+  gap: 8px;
+  padding: 9px 12px;
+  background: #f2f6f1;
+  color: #4c6558;
+  font-size: 16px;
 }
-.articleGoogleNews svg { width: 14px; height: 14px; }
-.articleGoogleNews:hover { background: #e9f1e8; }
+.articleGoogleNews svg:first-child { width: 20px; height: 20px; stroke: none; }
+.articleGoogleNews svg:last-child { width: 14px; height: 14px; }
+.articleGoogleNews:hover { background: #eaf2e9; }
 .articleTags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; font-size: 13px; }
 .articleTags span { color: var(--muted); margin-inline-end: 3px; }
 .articleTags a { padding: 2px 8px; border-radius: 4px; background: #f4f2e9; color: #66552d; }

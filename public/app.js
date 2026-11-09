@@ -30,6 +30,7 @@ const icons = {
  arrow:'<path d="M3 12h16m-6-6 6 6-6 6"/>', up:'<path d="m5 16 13-12M8 4h10v10"/>',
  menu:'<path d="M3 6h18M3 12h18M3 18h12"/>', close:'<path d="m6 6 12 12M18 6 6 18"/>',
  play:'<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>',
+ googleNews:'<path d="M4 3h15v12H4z" fill="#34a853"/><path d="m2 7 16-2 2 11-16 2z" fill="#fbbc04"/><path d="m7 6 15 3-2 11-15-3z" fill="#ea4335"/><rect x="3" y="9" width="18" height="13" rx="1.5" fill="#4285f4"/><path d="M11.5 13a3.3 3.3 0 1 0 .8 2.6H9.4m5.2-.8h4m-4 3h4" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>',
  paper:'<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M7 7h10M7 11h4v4H7zM14 11h3m-3 4h3M7 18h10"/>',
  time:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
  print:'<path d="M6 8V3h12v5M6 17H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6zM18 11h1"/>',
@@ -403,7 +404,7 @@ function article(n) {
       <a class="more" href="${safe(n.source)}" target="_blank" rel="noopener">মূল প্রতিবেদন পড়ুন ${icon('up')}</a>
     </div>
     <div class="articleEndMatter">
-      <a class="articleGoogleNews" href="https://news.google.com/search?q=site%3Ailhamnews.com&amp;hl=bn&amp;gl=BD&amp;ceid=BD%3Abn" target="_blank" rel="noopener">${icon('paper')}গুগল নিউজে ইলহাম নিউজের খবর দেখুন ${icon('up')}</a>
+      <a class="articleGoogleNews" href="https://news.google.com/search?q=site%3Ailhamnews.com&amp;hl=bn&amp;gl=BD&amp;ceid=BD%3Abn" target="_blank" rel="noopener">${icon('googleNews')}<span>গুগল নিউজে ইলহাম নিউজের খবর দেখুন</span>${icon('up')}</a>
       ${tags.length ? `<nav class="articleTags" aria-label="খবরের বিষয়"><span>বিষয়</span>${tags.map(tag=>anchor('section',safe(tag),tag)).join('')}</nav>` : ''}
     </div>
     ${commentsSection(n.id)}
