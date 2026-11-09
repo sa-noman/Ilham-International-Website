@@ -778,3 +778,55 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
     column-gap: clamp(24px, 2vw, 40px);
   }
 }
+
+.sectionHeadingLink { display: inline; }
+.sectionHeadingLink svg {
+  width: .65em;
+  height: .65em;
+  margin-inline-start: .25em;
+  vertical-align: .02em;
+  color: var(--gold);
+}
+.videoBand .sectionHeadingLink svg { color: #d5bd7d; }
+
+.articleReadMore {
+  margin: 24px 0;
+  border: 1px solid #dce7dd;
+  background: #f6f9f5;
+  border-radius: 4px;
+}
+.articleReadMore h2 {
+  padding: 8px 14px;
+  background: #eaf2e9;
+  color: var(--green);
+  font-size: 15px;
+}
+.articleReadMore a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  font: 700 19px/1.5 var(--serif);
+}
+.articleReadMore a span { flex: 1; }
+.articleReadMore a svg { width: 16px; height: 16px; color: var(--green); }
+.articleReadMore a svg:last-child { color: var(--gold); }
+.articleReadMore a:hover span { text-decoration: underline; }
+
+.articleEndMatter { margin-top: 22px; }
+.articleGoogleNews {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 12px;
+  background: #f0f5ef;
+  color: var(--green);
+  font-size: 14px;
+}
+.articleGoogleNews svg { width: 14px; height: 14px; }
+.articleGoogleNews:hover { background: #e9f1e8; }
+.articleTags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; font-size: 13px; }
+.articleTags span { color: var(--muted); margin-inline-end: 3px; }
+.articleTags a { padding: 2px 8px; border-radius: 4px; background: #f4f2e9; color: #66552d; }
+.articleTags a:hover { background: #eee9d9; }

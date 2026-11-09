@@ -26,6 +26,7 @@ const ids = values => values.map(id=>reportsById.get(id)).filter(Boolean);
 let region = 'বিশ্ব', showBreaking = false, visibleCount = 14, returnFocus;
 const icons = {
  search:'<circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/>',
+ chevrons:'<path d="m4 6 6 6-6 6m8-12 6 6-6 6"/>',
  arrow:'<path d="M3 12h16m-6-6 6 6-6 6"/>', up:'<path d="m5 16 13-12M8 4h10v10"/>',
  menu:'<path d="M3 6h18M3 12h18M3 18h12"/>', close:'<path d="m6 6 12 12M18 6 6 18"/>',
  play:'<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>',
@@ -101,7 +102,7 @@ function syncHeader() {
 }
 const more=(page,param='',label='সব খবর')=>anchor(page,label+' '+icon('arrow'),param,'more');
 function sectionHead(label,page='',param=''){
-  const heading=page?anchor(page,safe(label),param):safe(label);
+  const heading=page?anchor(page,safe(label)+icon('chevrons'),param,'sectionHeadingLink'):safe(label);
   return '<div class="sectionHead"><h2>'+heading+'</h2></div>';
 }
 function itemCard(n,section,label){return story(n,img(n)+'<div>'+(n.cat===section?'':badge(n,label))+'<h3>'+safe(n.title)+'</h3></div>','card')}
@@ -353,11 +354,26 @@ function commentsSection(id) {
 }
 
 function article(n) {
-  const titleWords = n.title.split(/[\s,।:?!]+/u).filter(word => word.length >= 5);
-  const candidates = wire.filter(item=>titleWords.some(word=>item.title.includes(word)));
-  const related = [...select(n.cat), ...candidates].filter((item,index,items) =>
-    item.id !== n.id && items.findIndex(candidate=>candidate.id===item.id)===index
-  ).slice(0, 10);
+  const tags = [...new Set(n.tags)];
+  const titleWords = [...new Set(n.title.normalize().split(/[\s,।:?!()‘’“”–-]+/u))]
+    .filter(word=>word.length >= 5);
+  const related = wire.filter(item=>item.id!==n.id)
+    .map(item=>({
+      item,
+      score: 4 * titleWords.filter(word=>item.title.normalize().includes(word)).length
+        + tags.filter(tag=>item.tags.includes(tag)).length
+        + (item.cat===n.cat ? 2 : 0)
+    }))
+    .filter(({score})=>score>0)
+    .sort((a,b)=>b.score-a.score)
+    .slice(0,10)
+    .map(({item})=>item);
+  const recommendation = related[0];
+  const readMore = recommendation ? `<aside class="articleReadMore" aria-label="আরও পড়ুন">
+    <h2>আরও পড়ুন</h2>
+    ${story(recommendation,icon('paper')+'<span>'+safe(recommendation.title)+'</span>'+icon('chevrons'))}
+  </aside>` : '';
+  const insertAfter = Math.min(2, n.body.length);
   const latest = wire.filter(item=>item.id!==n.id).slice(0,5);
   const numbered = (title,items) => `<section class="articleRanked"><h2>${title}</h2><ol>${items.map(item=>'<li>'+story(item,safe(item.title))+'</li>').join('')}</ol></section>`;
   const published = byDate(n, {day:'numeric', month:'long', year:'numeric'});
@@ -381,8 +397,14 @@ function article(n) {
       ${n.caption ? `<figcaption>${safe(n.caption)}</figcaption>` : ''}
     </figure>
     <div class="articleBody">
-      ${n.body.map(paragraph=>`<p>${safe(paragraph)}</p>`).join('')}
+      ${n.body.slice(0, insertAfter).map(paragraph=>`<p>${safe(paragraph)}</p>`).join('')}
+      ${readMore}
+      ${n.body.slice(insertAfter).map(paragraph=>`<p>${safe(paragraph)}</p>`).join('')}
       <a class="more" href="${safe(n.source)}" target="_blank" rel="noopener">মূল প্রতিবেদন পড়ুন ${icon('up')}</a>
+    </div>
+    <div class="articleEndMatter">
+      <a class="articleGoogleNews" href="https://news.google.com/search?q=site%3Ailhamnews.com&amp;hl=bn&amp;gl=BD&amp;ceid=BD%3Abn" target="_blank" rel="noopener">${icon('paper')}গুগল নিউজে ইলহাম নিউজের খবর দেখুন ${icon('up')}</a>
+      ${tags.length ? `<nav class="articleTags" aria-label="খবরের বিষয়"><span>বিষয়</span>${tags.map(tag=>anchor('section',safe(tag),tag)).join('')}</nav>` : ''}
     </div>
     ${commentsSection(n.id)}
   </article>
