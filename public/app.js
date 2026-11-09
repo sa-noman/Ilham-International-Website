@@ -180,6 +180,7 @@ function selectSlidingTab(button) {
     return;
   }
 
+  viewport.style.minHeight = outgoing.offsetHeight+'px';
   outgoing.classList.add('is-leaving');
   const options = {duration:380,easing:'cubic-bezier(.3,.7,.2,1)'};
   const enter = incoming.animate([{transform:`translateX(${direction*100}%)`},{transform:'translateX(0)'}],options);
@@ -190,6 +191,7 @@ function selectSlidingTab(button) {
     exit.cancel();
     outgoing.hidden = true;
     outgoing.classList.remove('is-leaving');
+    viewport.style.removeProperty('min-height');
     slideCleanup.delete(viewport);
   };
   slideCleanup.set(viewport,finish);
