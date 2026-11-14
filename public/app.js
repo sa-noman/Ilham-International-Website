@@ -645,10 +645,12 @@ function mobileDock(page,param) {
   return `<div id="dock-layer">
     <div class="dockScrim" data-dock-close hidden aria-hidden="true"></div>
     <section class="dockSheet" id="dock-sheet" hidden>
+      <h2 class="dockSheetTitle" id="dock-title"></h2>
+      <button type="button" class="dockClose" data-dock-close aria-label="বন্ধ করুন">${icon('close')}</button>
       <button type="button" class="dockHandle" aria-label="শিট বড় করুন" aria-expanded="false"><span></span></button>
-      <header class="dockHeading"><h2 id="dock-title"></h2><button type="button" class="dockClose" data-dock-close aria-label="বন্ধ করুন">${icon('close')}</button></header>
       <div class="dockChips" role="group" aria-label="খবরের ধরন"></div>
       <div class="dockStories"></div>
+      <div class="dockActions"><a class="dockMore"></a></div>
     </section>
     <nav class="mobileDock" aria-label="প্রধান বিভাগ">${tabs}</nav>
   </div>`;
@@ -681,8 +683,10 @@ function renderDockStories() {
       ${picture}<div><h3>${safe(item.title)}</h3>${lead||ranked?'':`<time>${date(item)} · ${clock(item)}</time>`}</div></a>`;
   }).join('');
   const target = dockActive===3 && dockChip>0 ? section.chips[dockChip] : section.section;
-  list.innerHTML = (rows ? `<div class="dockStoryGroup${ranked?' dockRanked':''}">${rows}</div>` : '<p class="dockEmpty">এই বিভাগে এখনো কোনো খবর নেই।</p>')
-    + `<a class="dockMore" href="${url(section.route,target)}">${ranked?'সব সর্বশেষ দেখুন':'সব দেখুন'} ›</a>`;
+  list.innerHTML = (rows ? `<div class="dockStoryGroup${ranked?' dockRanked':''}">${rows}</div>` : '<p class="dockEmpty">এই বিভাগে এখনো কোনো খবর নেই।</p>');
+  const moreLink = document.querySelector('.dockActions .dockMore');
+  moreLink.href = url(section.route,target);
+  moreLink.textContent = (ranked?'সব সর্বশেষ দেখুন':'সব দেখুন') + ' ›';
   list.scrollTop = 0;
 }
 
@@ -842,7 +846,7 @@ document.addEventListener('click',event=>{
     chip.setAttribute('aria-pressed','true');
     renderDockStories();
   }
-  const link=event.target.closest('.dockStories a');
+  const link=event.target.closest('.dockStories a, .dockActions a');
   if(link){
     event.preventDefault();
     closeDock({destination:link.hash});
