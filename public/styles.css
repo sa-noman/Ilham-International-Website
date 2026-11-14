@@ -911,11 +911,49 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
 @media (prefers-reduced-motion: reduce) {
   .feedTabs.is-ready .feedIndicator { transition: none; }
 }
-
 @media (max-width: 700px) {
   .siteHeader .navLinks { --nav-gap: 20px; }
   .siteHeader .navLinks > a {
     min-height: 44px;
     flex-shrink: 0;
   }
+}
+
+.mobileDock { display: none; }
+@media (max-width: 700px) {
+  #publication { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+  .mobileDock {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    min-height: 76px;
+    padding: 7px max(6px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-left));
+    background: #f5f0e4;
+    border-top: 1px solid #dfd2b8;
+    color: #596b63;
+  }
+  .mobileDock a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1px;
+    min-height: 48px;
+    font-size: clamp(11px, 3.2vw, 14px);
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+  .mobileDock a:focus-visible { outline-offset: -2px; }
+  .mobileDockIcon {
+    display: grid;
+    place-items: center;
+    width: min(92%, 72px);
+    height: 35px;
+    border-radius: 999px;
+  }
+  .mobileDockIcon svg { width: 24px; height: 24px; stroke-width: 2; }
+  .mobileDock a[aria-current="page"] { color: #103d34; font-weight: 700; }
+  .mobileDock a[aria-current="page"] .mobileDockIcon { background: #d9e8e0; }
 }

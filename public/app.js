@@ -25,6 +25,11 @@ const select = tag => wire.filter(item => item.cat===tag || item.tags.includes(t
 const ids = values => values.map(id=>reportsById.get(id)).filter(Boolean);
 let region = 'বিশ্ব', showBreaking = false, visibleCount = 14, returnFocus;
 const icons = {
+  dockFeed:'<circle cx="5" cy="19" r="1.5"/><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/>',
+  dockWorld:'<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/>',
+  dockTop:'<circle cx="12" cy="12" r="2"/><path d="M7.8 8a6 6 0 0 0 0 8m8.4-8a6 6 0 0 1 0 8M4.7 5a10 10 0 0 0 0 14M19.3 5a10 10 0 0 1 0 14"/>',
+  dockAnalysis:'<path d="M11 3a9 9 0 1 0 10 10H11V3Zm3 0v7h7a9 9 0 0 0-7-7Z"/>',
+  dockDefense:'<path d="M5 4h14l2 6-9 11-9-11 2-6Zm4 6 3 3 3-3"/>',
  search:'<circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/>',
  chevrons:'<path d="m4 6 6 6-6 6m8-12 6 6-6 6"/>',
  arrow:'<path d="M3 12h16m-6-6 6 6-6 6"/>', up:'<path d="m5 16 13-12M8 4h10v10"/>',
@@ -619,7 +624,20 @@ function playFeaturedVideo(button) {
     // Native controls remain available if playback does not start.
   });
 }
-function render(){const [page,param]=pageState();let view=home;if(page==='latest')view=latestPage;if(page==='videos')view=()=>watch(param);if(page==='section')view=()=>listing(param,select(param));if(page==='article'&&reportsById.has(param))view=()=>article(reportsById.get(param));if(page==='search')view=()=>searchPage('অনুসন্ধান · '+param,wire.filter(n=>(n.title+' '+n.summary+' '+n.tags.join(' ')).includes(param)));document.querySelector('#publication').innerHTML=header(page,param)+'<main id="main" data-page="'+page+'">'+view()+'</main>'+footer();syncHeader();scheduleVideos();measureFeedTab();if(page==='home')document.fonts.ready.then(measureFeedTab);if(page==='latest'){
+function mobileDock(page,param){
+  const items=[
+    ['home','','ফিড','dockFeed'],
+    ['section','বিশ্ব','আন্তর্জাতিক','dockWorld'],
+    ['latest','','শীর্ষ সংবাদ','dockTop'],
+    ['section','বিশ্লেষণ','বিশ্লেষণ','dockAnalysis'],
+    ['section','প্রতিরক্ষা','সামরিক','dockDefense']
+  ];
+  return '<nav class="mobileDock" aria-label="প্রধান বিভাগ">'+items.map(([route,section,label,symbol])=>{
+    const current=page===route&&(!section||param===section);
+    return '<a href="'+url(route,section)+'"'+(current?' aria-current="page"':'')+'><span class="mobileDockIcon">'+icon(symbol)+'</span><span>'+label+'</span></a>';
+  }).join('')+'</nav>';
+}
+function render(){const [page,param]=pageState();let view=home;if(page==='latest')view=latestPage;if(page==='videos')view=()=>watch(param);if(page==='section')view=()=>listing(param,select(param));if(page==='article'&&reportsById.has(param))view=()=>article(reportsById.get(param));if(page==='search')view=()=>searchPage('অনুসন্ধান · '+param,wire.filter(n=>(n.title+' '+n.summary+' '+n.tags.join(' ')).includes(param)));document.querySelector('#publication').innerHTML=header(page,param)+'<main id="main" data-page="'+page+'">'+view()+'</main>'+footer()+mobileDock(page,param);syncHeader();scheduleVideos();measureFeedTab();if(page==='home')document.fonts.ready.then(measureFeedTab);if(page==='latest'){
     syncLatestList();
     const main=document.querySelector('main[data-page=latest]');
     main.getBoundingClientRect();
