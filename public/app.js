@@ -626,10 +626,10 @@ function playFeaturedVideo(button) {
 }
 const dockSections = [
   {route:'home', label:'ফিড', icon:'dockFeed', chips:['সব','এশিয়া','মধ্যপ্রাচ্য']},
-  {route:'section', section:'বিশ্ব', label:'আন্তর্জাতিক', icon:'dockWorld', chips:['আন্তর্জাতিক','আমেরিকা','এশিয়া','ইউরোপ','আফ্রিকা']},
-  {route:'latest', label:'শীর্ষ সংবাদ', icon:'dockTop', chips:['সর্বশেষ','সবচেয়ে পঠিত','সবচেয়ে আলোচিত']},
-  {route:'section', section:'বিশ্লেষণ', label:'বিশ্লেষণ', icon:'dockAnalysis', chips:['সব','মধ্যপ্রাচ্য','বিশ্ব','মতামত']},
-  {route:'section', section:'প্রতিরক্ষা', label:'সামরিক', icon:'dockDefense', chips:['সব','এশিয়া','মধ্যপ্রাচ্য','বিশ্ব']}
+  {route:'section', section:'বিশ্ব', label:'আন্তর্জাতিক', icon:'dockWorld', layout:'compact', limit:5, chips:['আন্তর্জাতিক','আমেরিকা','এশিয়া','ইউরোপ','আফ্রিকা']},
+  {route:'latest', label:'শীর্ষ সংবাদ', icon:'dockTop', layout:'ranked', limit:7, chips:['সর্বশেষ','সবচেয়ে পঠিত','সবচেয়ে আলোচিত']},
+  {route:'section', section:'বিশ্লেষণ', label:'বিশ্লেষণ', icon:'dockAnalysis', layout:'compact', limit:6, chips:['বিশ্লেষণ','মতামত','এক্সপ্লেইনার']},
+  {route:'section', section:'প্রতিরক্ষা', label:'সামরিক', icon:'dockDefense', layout:'compact', chips:[]}
 ];
 const dockMedia = matchMedia('(max-width: 700px)');
 const dockMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -661,19 +661,28 @@ function dockNews(index,chip) {
     return wire.map(item=>({item, count:readComments(item.id).reduce((total,c)=>total+1+(c.replies?.length||0),0)}))
       .filter(entry=>entry.count>0).sort((a,b)=>b.count-a.count).map(entry=>entry.item);
   }
-  const source = index===3 && tag!=='মতামত' ? select('বিশ্লেষণ') : index===4 ? select('প্রতিরক্ষা') : wire;
-  if (tag==='সব' || index===2) return source;
-  return source.filter(item=>item.cat===tag || item.tags.includes(tag));
+  if (index===3) return select(tag);
+  if (index===4) return select('প্রতিরক্ষা');
+  if (tag==='সব' || index===2) return wire;
+  return select(tag);
 }
 
 function renderDockStories() {
   const section = dockSections[dockActive];
   const list = document.querySelector('.dockStories');
-  const items = dockNews(dockActive,dockChip).slice(0,6);
-  list.innerHTML = items.map((item,index)=>`<a class="dockStory ${index===0?'dockLead':''}" href="${url('article',item.id)}" style="--enter-delay:${140+index*40}ms">
-    <img src="${safe(item.image)}" alt="" loading="${index===0?'eager':'lazy'}"><div><h3>${safe(item.title)}</h3>${index===0?'':`<time>${date(item)} · ${clock(item)}</time>`}</div></a>`).join('')
-    + (items.length?'':'<p class="dockEmpty">এই বিভাগে এখনো কোনো খবর নেই।</p>')
-    + `<a class="dockMore" href="${url(section.route,section.section)}">সব দেখুন ›</a>`;
+  const ranked = section.layout==='ranked';
+  const items = dockNews(dockActive,dockChip).slice(0,section.limit ?? (section.layout ? wire.length : 6));
+  const rows = items.map((item,index)=>{
+    const lead = !section.layout && index===0;
+    const picture = ranked
+      ? `<span class="dockRank" aria-hidden="true">${bn(index+1)}</span>`
+      : `<img src="${safe(item.image)}" alt="" loading="${index===0?'eager':'lazy'}">`;
+    return `<a class="dockStory${lead?' dockLead':''}" href="${url('article',item.id)}" style="--enter-delay:${140+index*40}ms">
+      ${picture}<div><h3>${safe(item.title)}</h3>${lead||ranked?'':`<time>${date(item)} · ${clock(item)}</time>`}</div></a>`;
+  }).join('');
+  const target = dockActive===3 && dockChip>0 ? section.chips[dockChip] : section.section;
+  list.innerHTML = (rows ? `<div class="dockStoryGroup${ranked?' dockRanked':''}">${rows}</div>` : '<p class="dockEmpty">এই বিভাগে এখনো কোনো খবর নেই।</p>')
+    + `<a class="dockMore" href="${url(section.route,target)}">${ranked?'সব সর্বশেষ দেখুন':'সব দেখুন'} ›</a>`;
   list.scrollTop = 0;
 }
 
@@ -682,6 +691,7 @@ function renderDockSection() {
   document.getElementById('dock-title').textContent=section.label;
   const chips=document.querySelector('.dockChips');
   chips.innerHTML=section.chips.map((label,i)=>`<button type="button" data-dock-chip="${i}" aria-pressed="${i===0}">${label}</button>`).join('');
+  chips.hidden=section.chips.length===0;
   chips.scrollLeft=0;
   document.querySelectorAll('[data-dock-tab]').forEach((tab,i)=>{
     const active=i===dockActive;
