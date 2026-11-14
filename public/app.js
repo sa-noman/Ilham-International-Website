@@ -624,19 +624,221 @@ function playFeaturedVideo(button) {
     // Native controls remain available if playback does not start.
   });
 }
-function mobileDock(page,param){
-  const items=[
-    ['home','','ফিড','dockFeed'],
-    ['section','বিশ্ব','আন্তর্জাতিক','dockWorld'],
-    ['latest','','শীর্ষ সংবাদ','dockTop'],
-    ['section','বিশ্লেষণ','বিশ্লেষণ','dockAnalysis'],
-    ['section','প্রতিরক্ষা','সামরিক','dockDefense']
-  ];
-  return '<nav class="mobileDock" aria-label="প্রধান বিভাগ">'+items.map(([route,section,label,symbol])=>{
-    const current=page===route&&(!section||param===section);
-    return '<a href="'+url(route,section)+'"'+(current?' aria-current="page"':'')+'><span class="mobileDockIcon">'+icon(symbol)+'</span><span>'+label+'</span></a>';
-  }).join('')+'</nav>';
+const dockSections = [
+  {route:'home', label:'ফিড', icon:'dockFeed', chips:['সব','এশিয়া','মধ্যপ্রাচ্য']},
+  {route:'section', section:'বিশ্ব', label:'আন্তর্জাতিক', icon:'dockWorld', chips:['আন্তর্জাতিক','আমেরিকা','এশিয়া','ইউরোপ','আফ্রিকা']},
+  {route:'latest', label:'শীর্ষ সংবাদ', icon:'dockTop', chips:['সর্বশেষ','সবচেয়ে পঠিত','সবচেয়ে আলোচিত']},
+  {route:'section', section:'বিশ্লেষণ', label:'বিশ্লেষণ', icon:'dockAnalysis', chips:['সব','মধ্যপ্রাচ্য','বিশ্ব','মতামত']},
+  {route:'section', section:'প্রতিরক্ষা', label:'সামরিক', icon:'dockDefense', chips:['সব','এশিয়া','মধ্যপ্রাচ্য','বিশ্ব']}
+];
+const dockMedia = matchMedia('(max-width: 700px)');
+const dockMotion = matchMedia('(prefers-reduced-motion: reduce)');
+let dockActive = -1, dockChip = 0, dockExpanded = false;
+let dockOpen = false, dockClosing = false, dockHistoryPending = false;
+let dockResize, dockHideTimer, dockScrollY = 0;
+
+function mobileDock(page,param) {
+  const tabs = dockSections.map(({route,section,label,icon:symbol}, index)=>{
+    const current=dockActive<0 ? page===route&&(!section||param===section) : index===dockActive;
+    return '<a data-dock-tab="'+index+'" aria-controls="dock-sheet" aria-expanded="false" href="'+url(route,section)+'"'+(current?' aria-current="page"':'')+'><span class="mobileDockIcon">'+icon(symbol)+'</span><span>'+label+'</span></a>';
+  }).join('');
+  return `<div id="dock-layer">
+    <div class="dockScrim" data-dock-close hidden aria-hidden="true"></div>
+    <section class="dockSheet" id="dock-sheet" hidden>
+      <button type="button" class="dockHandle" aria-label="শিট বড় করুন" aria-expanded="false"><span></span></button>
+      <header class="dockHeading"><h2 id="dock-title"></h2><button type="button" class="dockClose" data-dock-close aria-label="বন্ধ করুন">${icon('close')}</button></header>
+      <div class="dockChips" role="group" aria-label="খবরের ধরন"></div>
+      <div class="dockStories"></div>
+    </section>
+    <nav class="mobileDock" aria-label="প্রধান বিভাগ">${tabs}</nav>
+  </div>`;
 }
+
+function dockNews(index,chip) {
+  const tag = dockSections[index].chips[chip];
+  if (index===2 && chip===1) return popularStories();
+  if (index===2 && chip===2) {
+    return wire.map(item=>({item, count:readComments(item.id).reduce((total,c)=>total+1+(c.replies?.length||0),0)}))
+      .filter(entry=>entry.count>0).sort((a,b)=>b.count-a.count).map(entry=>entry.item);
+  }
+  const source = index===3 && tag!=='মতামত' ? select('বিশ্লেষণ') : index===4 ? select('প্রতিরক্ষা') : wire;
+  if (tag==='সব' || index===2) return source;
+  return source.filter(item=>item.cat===tag || item.tags.includes(tag));
+}
+
+function renderDockStories() {
+  const section = dockSections[dockActive];
+  const list = document.querySelector('.dockStories');
+  const items = dockNews(dockActive,dockChip).slice(0,6);
+  list.innerHTML = items.map((item,index)=>`<a class="dockStory ${index===0?'dockLead':''}" href="${url('article',item.id)}" style="--enter-delay:${140+index*40}ms">
+    <img src="${safe(item.image)}" alt="" loading="${index===0?'eager':'lazy'}"><div><h3>${safe(item.title)}</h3>${index===0?'':`<time>${date(item)} · ${clock(item)}</time>`}</div></a>`).join('')
+    + (items.length?'':'<p class="dockEmpty">এই বিভাগে এখনো কোনো খবর নেই।</p>')
+    + `<a class="dockMore" href="${url(section.route,section.section)}">সব দেখুন ›</a>`;
+  list.scrollTop = 0;
+}
+
+function renderDockSection() {
+  const section = dockSections[dockActive];
+  document.getElementById('dock-title').textContent=section.label;
+  const chips=document.querySelector('.dockChips');
+  chips.innerHTML=section.chips.map((label,i)=>`<button type="button" data-dock-chip="${i}" aria-pressed="${i===0}">${label}</button>`).join('');
+  chips.scrollLeft=0;
+  document.querySelectorAll('[data-dock-tab]').forEach((tab,i)=>{
+    const active=i===dockActive;
+    tab.setAttribute('aria-expanded',String(active));
+    if(active) tab.setAttribute('aria-current','page');
+    else tab.removeAttribute('aria-current');
+  });
+  renderDockStories();
+}
+
+function setDockBackgroundInert(inert) {
+  document.querySelectorAll('#publication > :is(header,main,footer), body > .skip').forEach(el=>{el.inert=inert;});
+}
+
+function openDock(index) {
+  if (dockClosing || dockHistoryPending) return;
+  if (dockOpen && dockActive===index) { closeDock(); return; }
+  dockActive=index;
+  dockChip=0;
+  renderDockSection();
+  if (dockOpen) return;
+
+  history.pushState({...history.state, ilhamDock:true},'');
+  dockOpen=true;
+  dockScrollY=window.scrollY;
+  document.body.style.setProperty('--dock-scroll',`-${dockScrollY}px`);
+  document.body.classList.add('dockLocked');
+  setDockBackgroundInert(true);
+
+  // Include the dock in the modal so its tabs remain keyboard accessible.
+  const layer=document.getElementById('dock-layer');
+  layer.setAttribute('role','dialog');
+  layer.setAttribute('aria-modal','true');
+  layer.setAttribute('aria-labelledby','dock-title');
+  layer.querySelectorAll(':scope > [hidden]').forEach(el=>{el.hidden=false;});
+  layer.classList.add('is-open');
+  layer.querySelector('.dockClose').focus({preventScroll:true});
+}
+
+function finishDockClose(restoreFocus=true) {
+  clearTimeout(dockHideTimer);
+  dockResize?.cancel();
+  dockResize=null;
+  dockClosing=false;
+  dockExpanded=false;
+  const layer=document.getElementById('dock-layer');
+  if (layer) {
+    layer.classList.remove('is-closing','is-open');
+    layer.removeAttribute('role');
+    layer.removeAttribute('aria-modal');
+    layer.removeAttribute('aria-labelledby');
+    layer.querySelector('.dockScrim').hidden=true;
+    const sheet=layer.querySelector('.dockSheet');
+    sheet.hidden=true;
+    sheet.classList.remove('is-expanded');
+    const handle=sheet.querySelector('.dockHandle');
+    handle.setAttribute('aria-expanded','false');
+    handle.setAttribute('aria-label','শিট বড় করুন');
+    layer.querySelectorAll('[data-dock-tab]').forEach(tab=>tab.setAttribute('aria-expanded','false'));
+  }
+  setDockBackgroundInert(false);
+  document.body.classList.remove('dockLocked');
+  document.body.style.removeProperty('--dock-scroll');
+  window.scrollTo(0,dockScrollY);
+  if (restoreFocus) layer?.querySelector(`[data-dock-tab="${dockActive}"]`)?.focus({preventScroll:true});
+}
+
+function closeDock({fromHistory=false,destination}={}) {
+  if (!dockOpen) return;
+  dockOpen=false;
+  dockClosing=true;
+  const layer=document.getElementById('dock-layer');
+  if(destination) {
+    finishDockClose(false);
+    if (destination===location.hash) {
+      history.back();
+    } else {
+      location.replace(destination);
+    }
+    return;
+  }
+  if (!fromHistory && history.state?.ilhamDock) {
+    dockHistoryPending=true;
+    history.back();
+  }
+  dockResize?.cancel();
+  layer.classList.add('is-closing');
+  layer.classList.remove('is-open');
+  dockHideTimer=setTimeout(finishDockClose,dockMotion.matches?10:240);
+}
+
+function toggleDockHeight() {
+  if (dockResize || !dockOpen) return;
+  const sheet=document.querySelector('.dockSheet');
+  const handle=sheet.querySelector('.dockHandle');
+  const isExpanding=!dockExpanded;
+  const oldTop=sheet.getBoundingClientRect().top;
+  sheet.classList.toggle('is-expanded',isExpanding);
+  const distance=Math.abs(oldTop-sheet.getBoundingClientRect().top);
+  if (!isExpanding) sheet.classList.add('is-expanded');
+  dockExpanded=isExpanding;
+  handle.setAttribute('aria-expanded',String(dockExpanded));
+  handle.setAttribute('aria-label',dockExpanded?'শিট ছোট করুন':'শিট বড় করুন');
+  dockResize=sheet.animate(isExpanding ? [{transform:`translateY(${distance}px)`},{transform:'translateY(0)'}] : [{transform:'translateY(0)'},{transform:`translateY(${distance}px)`}],{
+    duration:dockMotion.matches?10:320,easing:'cubic-bezier(.3,.8,.3,1)'
+  });
+  dockResize.onfinish=()=>{
+    sheet.classList.toggle('is-expanded',dockExpanded);
+    dockResize=null;
+  };
+}
+
+window.addEventListener('popstate',()=>{
+  dockHistoryPending=false;
+  if (dockOpen && !history.state?.ilhamDock) closeDock({fromHistory:true});
+  else if (!dockOpen && history.state?.ilhamDock) history.back();
+});
+dockMedia.addEventListener('change',event=>{if(!event.matches) closeDock();});
+
+document.addEventListener('keydown',event=>{
+  if(!dockOpen) return;
+  if(event.key==='Escape'){
+    event.preventDefault();
+    closeDock();
+  }
+  if(event.key!=='Tab') return;
+  const stops=[...document.querySelectorAll('#dock-layer button, #dock-layer a')];
+  const index=stops.indexOf(document.activeElement);
+  if(index<0 || (event.shiftKey?index===0:index===stops.length-1)){
+    event.preventDefault();
+    stops[event.shiftKey?stops.length-1:0]?.focus();
+  }
+});
+
+document.addEventListener('click',event=>{
+  const trigger=event.target.closest('[data-dock-tab]');
+  if(trigger && dockMedia.matches){
+    event.preventDefault();
+    openDock(Number(trigger.dataset.dockTab));
+  }
+  if(!dockOpen) return;
+  if(event.target.closest('[data-dock-close]')) { closeDock(); return; }
+  if(event.target.closest('.dockHandle')) { toggleDockHeight(); return; }
+  const chip=event.target.closest('[data-dock-chip]');
+  if(chip && dockChip!==Number(chip.dataset.dockChip)){
+    dockChip=Number(chip.dataset.dockChip);
+    chip.parentElement.querySelector('[aria-pressed="true"]').setAttribute('aria-pressed','false');
+    chip.setAttribute('aria-pressed','true');
+    renderDockStories();
+  }
+  const link=event.target.closest('.dockStories a');
+  if(link){
+    event.preventDefault();
+    closeDock({destination:link.hash});
+  }
+});
+
 function render(){const [page,param]=pageState();let view=home;if(page==='latest')view=latestPage;if(page==='videos')view=()=>watch(param);if(page==='section')view=()=>listing(param,select(param));if(page==='article'&&reportsById.has(param))view=()=>article(reportsById.get(param));if(page==='search')view=()=>searchPage('অনুসন্ধান · '+param,wire.filter(n=>(n.title+' '+n.summary+' '+n.tags.join(' ')).includes(param)));document.querySelector('#publication').innerHTML=header(page,param)+'<main id="main" data-page="'+page+'">'+view()+'</main>'+footer()+mobileDock(page,param);syncHeader();scheduleVideos();measureFeedTab();if(page==='home')document.fonts.ready.then(measureFeedTab);if(page==='latest'){
     syncLatestList();
     const main=document.querySelector('main[data-page=latest]');
@@ -810,6 +1012,8 @@ document.fonts.addEventListener('loadingdone', measureLatestFilter);
 document.fonts.addEventListener('loadingdone', measureFeedTab);
 
 window.addEventListener('hashchange', () => {
+  if (dockOpen) closeDock({fromHistory:true});
+  if (dockClosing) finishDockClose(false);
   document.querySelector('dialog')?.close();
   visibleCount = 14;
   showBreaking = false;
