@@ -922,7 +922,7 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
 .mobileDock { display: none; }
 @media (max-width: 700px) {
   #publication {
-    --dock-height: 76px;
+    --dock-height: 68px;
     --dock-bottom: max(14px, env(safe-area-inset-bottom, 0px));
     padding-bottom: calc(var(--dock-height) + var(--dock-bottom));
   }
@@ -945,7 +945,7 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
     gap: 2px;
     padding: 6px;
     border: 1px solid #c4d5cc;
-    border-radius: 28px;
+    border-radius: 25px;
     background: #e0ebe5;
     color: #31574c;
     box-shadow: 0 5px 12px #183d3324;
@@ -956,8 +956,8 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
     align-items: center;
     justify-content: center;
     gap: 4px;
-    min-height: 62px;
-    border-radius: 22px;
+    min-height: 54px;
+    border-radius: 20px;
     font-size: clamp(10px, 2.9vw, 14px);
     line-height: 1.25;
     white-space: nowrap;
