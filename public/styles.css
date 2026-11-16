@@ -1333,3 +1333,14 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
     background: #f9e5e3;
   }
 }
+
+@media (max-width: 700px) {
+  main[data-page="latest"] .bulletin { row-gap: 0; }
+  #latest-list > [data-more] {
+    width: 100%;
+    text-align: center;
+  }
+  #latest-list > [data-more] .loadArrow { display: none; }
+  main[data-page="latest"] .ranked .sectionHead { margin-top: 22px; }
+  main[data-page="latest"] .ranked h3 { font-size: 19px; line-height: 1.4; }
+}

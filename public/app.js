@@ -369,7 +369,7 @@ function latestPage() {
   </div><div class="bulletin">
     <section id="latest-list" role="tabpanel" aria-labelledby="latest-all">${rows}
       <p data-latest-empty hidden>এখন কোনো ব্রেকিং আপডেট নেই।</p>
-      <button type="button" data-more class="load" hidden>আরও আপডেট ↓</button>
+      <button type="button" data-more class="load" hidden>আরও আপডেট<span class="loadArrow" aria-hidden="true"> ↓</span></button>
     </section>
     <aside>${ranked()}</aside>
   </div></div>`;
