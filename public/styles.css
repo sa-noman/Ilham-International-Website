@@ -1220,7 +1220,7 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   main[data-page="home"] {
     --mobile-section-title: 23px;
     --mobile-lead-title: 22px;
-    --mobile-story-title: 19px;
+    --mobile-story-title: 17px;
   }
   main[data-page="home"] .sectionHead h2 {
     font-size: var(--mobile-section-title);
@@ -1233,7 +1233,7 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   main[data-page="home"] :is(.briefRow, .smallNews, .opinionRow, .card, .sportCover) h3,
   main[data-page="home"] .videoTile strong {
     font-size: var(--mobile-story-title);
-    line-height: 1.4;
+    line-height: 1.48;
   }
 }
 
@@ -1246,7 +1246,7 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
 @media (max-width: 700px) {
   main[data-page="home"] {
     --mobile-lead-title: 20px;
-    --mobile-story-title: 19px;
+    --mobile-story-title: 17px;
   }
   main[data-page="home"] .feature img { aspect-ratio: 3 / 2; }
   main[data-page="home"] .feature :is(h1, h3) {
@@ -1295,4 +1295,15 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   main[data-page="home"] .shortSpread { grid-template-columns: minmax(0, 1fr); gap: 0; }
   main[data-page="home"] .shortSpread > .card > .imageFrame { grid-column: 2; grid-row: 1; }
   main[data-page="home"] .shortSpread > .card > div { grid-column: 1; grid-row: 1; }
+}
+
+@media (max-width: 700px) {
+  main[data-page="home"] .smallNews {
+    grid-template-columns: min(26%, 92px) minmax(0, 1fr);
+    align-items: start;
+    gap: 14px;
+    padding-block: 15px;
+  }
+  main[data-page="home"] .smallNews img { aspect-ratio: 1; }
+  main[data-page="home"] .grid4 .card h3 { margin-top: 7px; }
 }
