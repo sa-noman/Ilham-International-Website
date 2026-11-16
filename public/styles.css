@@ -1324,14 +1324,12 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
     border-top: 1px solid var(--line);
   }
   main[data-page="section"] .sectionMast > span { display: none; }
-  main[data-page="latest"] .latestFilters,
-  main[data-page="latest"] .latestFilters .latestIndicator {
-    border-color: transparent;
+  main[data-page="latest"] .latestFilters { border-color: transparent; }
+  main[data-page="latest"] .latestIndicator { display: none; }
+  main[data-page="latest"] .latestFilters button[data-filter="all"][aria-selected="true"] {
+    background: #e3f1e5;
   }
-  main[data-page="latest"] .latestFilters .latestIndicator {
-    background-color: #e3f1e5;
-  }
-  main[data-page="latest"] .latestFilters[data-active="breaking"] .latestIndicator {
-    background-color: #f9e5e3;
+  main[data-page="latest"] .latestFilters button[data-filter="breaking"][aria-selected="true"] {
+    background: #f9e5e3;
   }
 }
