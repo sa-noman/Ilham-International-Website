@@ -1328,4 +1328,10 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   main[data-page="latest"] .latestFilters .latestIndicator {
     border-color: transparent;
   }
+  main[data-page="latest"] .latestFilters .latestIndicator {
+    background-color: #e3f1e5;
+  }
+  main[data-page="latest"] .latestFilters[data-active="breaking"] .latestIndicator {
+    background-color: #f9e5e3;
+  }
 }
