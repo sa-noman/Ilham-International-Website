@@ -1236,3 +1236,9 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
     line-height: 1.4;
   }
 }
+
+@media (max-width: 700px) {
+  main[data-page="home"] .desk:not(.specialSection .desk) {
+    display: none;
+  }
+}
