@@ -922,32 +922,24 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
 .mobileDock { display: none; }
 @media (max-width: 700px) {
   #publication {
-    --dock-height: 64px;
-    --dock-bottom: max(14px, env(safe-area-inset-bottom, 0px));
+    --dock-height: calc(64px + env(safe-area-inset-bottom, 0px));
+    --dock-bottom: 0px;
     padding-bottom: calc(var(--dock-height) + var(--dock-bottom));
-  }
-  #publication::after {
-    content: "";
-    position: fixed;
-    inset: auto 0 0;
-    height: calc(var(--dock-height) + var(--dock-bottom));
-    background: var(--paper);
-    z-index: 4;
   }
   .mobileDock {
     position: fixed;
-    inset-inline: max(12px, env(safe-area-inset-left, 0px)) max(12px, env(safe-area-inset-right, 0px));
+    inset-inline: 0;
     bottom: var(--dock-bottom);
     height: var(--dock-height);
     z-index: 5;
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 2px;
-    padding: 4px 6px;
-    border: 1px solid #c4d5cc;
+    padding: 4px env(safe-area-inset-right, 0px) calc(4px + env(safe-area-inset-bottom, 0px)) env(safe-area-inset-left, 0px);
+    border-top: 1px solid #245447;
     border-radius: 0;
-    background: #e0ebe5;
-    color: #31574c;
+    background: #103d34;
+    color: #c4dcd2;
   }
   .mobileDock a {
     display: flex;
@@ -965,8 +957,7 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   .mobileDockIcon { display: grid; place-items: center; }
   .mobileDockIcon svg { width: 23px; height: 23px; stroke-width: 2; }
   .mobileDock a[aria-current="page"] {
-    background: #103d34;
-    color: #faf9f5;
+    color: #fff;
     font-weight: 700;
   }
 }
@@ -1002,7 +993,6 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
     inset: var(--dock-scroll, 0) 0 auto;
     overflow: hidden;
   }
-  #publication:has(#dock-layer:is(.is-open, .is-closing))::after { visibility: hidden; }
 
   .dockScrim {
     position: fixed;
