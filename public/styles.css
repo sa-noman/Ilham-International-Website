@@ -1242,3 +1242,57 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
     display: none;
   }
 }
+
+@media (max-width: 700px) {
+  main[data-page="home"] {
+    --mobile-lead-title: 20px;
+    --mobile-story-title: 19px;
+  }
+  main[data-page="home"] .feature img { aspect-ratio: 3 / 2; }
+  main[data-page="home"] .feature :is(h1, h3) {
+    margin: 8px 0 10px;
+    line-height: 1.4;
+  }
+  main[data-page="home"] .feature p {
+    display: block;
+    overflow: visible;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  main[data-page="home"] .feature small {
+    margin-top: 16px;
+    font-size: 13px;
+  }
+  main[data-page="home"] .spread {
+    display: flex;
+    flex-direction: column;
+  }
+  main[data-page="home"] .spread > * {
+    padding-inline: 0;
+    border-inline: 0;
+  }
+  main[data-page="home"] .spread > .feature {
+    order: -1;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  main[data-page="home"] .spread > .flank { border-top: 0; }
+  main[data-page="home"] .briefRow,
+  main[data-page="home"] .shortSpread > .card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) min(25%, 94px);
+    align-items: start;
+    gap: 14px;
+    padding: 16px 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  main[data-page="home"] .briefRow img,
+  main[data-page="home"] .shortSpread > .card img {
+    aspect-ratio: 1;
+    max-height: none;
+  }
+  main[data-page="home"] .shortSpread { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  main[data-page="home"] .shortSpread > .card > .imageFrame { grid-column: 2; grid-row: 1; }
+  main[data-page="home"] .shortSpread > .card > div { grid-column: 1; grid-row: 1; }
+}
