@@ -1307,3 +1307,25 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   main[data-page="home"] .smallNews img { aspect-ratio: 1; }
   main[data-page="home"] .grid4 .card h3 { margin-top: 7px; }
 }
+
+@media (max-width: 700px) {
+  main[data-page="home"] .feedPanel .more[href="#latest"] {
+    width: 100%;
+    justify-content: center;
+    gap: 10px;
+    margin-block: 10px;
+    font-size: 16px;
+  }
+  main[data-page="home"] .feedPanel .more[href="#latest"] svg { display: none; }
+  main[data-page="home"] .feedPanel .more[href="#latest"]::before,
+  main[data-page="home"] .feedPanel .more[href="#latest"]::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid var(--line);
+  }
+  main[data-page="section"] .sectionMast > span { display: none; }
+  main[data-page="latest"] .latestFilters,
+  main[data-page="latest"] .latestFilters .latestIndicator {
+    border-color: transparent;
+  }
+}
