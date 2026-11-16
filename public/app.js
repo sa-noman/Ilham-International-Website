@@ -417,8 +417,8 @@ function searchPage(title,items){
   return '<section class="wrap inside">'+crumb('অনুসন্ধান')+'<div class="bulletinHead"><h1>'+safe(title)+'</h1><small>'+bn(items.length)+'টি ফলাফল</small></div><div class="searchResults">'+(items.map(shelf).join('')||'<p>কোনো প্রতিবেদন পাওয়া যায়নি।</p>')+'</div></section>';
 }
 function listing(title,items){
-  const cards=items.map(n=>story(n,img(n)+'<div><small>'+date(n)+' '+bn(Number(n.date.slice(0,4)))+
-    '</small><h2>'+safe(n.title)+'</h2><p>'+safe(n.summary)+'</p></div>', 'sectionEntry')).join('');
+  const cards=items.map(n=>story(n,img(n)+'<div class="sectionEntryCopy"><time class="sectionEntryDate" datetime="'+safe(n.date)+'">'+date(n)+' '+bn(Number(n.date.slice(0,4)))+
+    '</time><h2>'+safe(n.title)+'</h2><p>'+safe(n.summary)+'</p></div>', 'sectionEntry')).join('');
   return '<section class="wrap inside">'+crumb(title)+'<div class="sectionMast"><h1>'+safe(title)+'</h1><span>'+bn(items.length)+
     'টি প্রতিবেদন</span></div><div class="sectionGrid">'+cards+'</div></section>';
 }
