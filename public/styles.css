@@ -1344,3 +1344,13 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   main[data-page="latest"] .ranked .sectionHead { margin-top: 22px; }
   main[data-page="latest"] .ranked h3 { font-size: 19px; line-height: 1.4; }
 }
+
+.sectionMore { display: none; }
+@media (max-width: 700px) {
+  main[data-page="section"] .sectionGrid > .sectionPending { display: none; }
+  main[data-page="section"] .sectionMore {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+}

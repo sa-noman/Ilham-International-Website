@@ -416,11 +416,12 @@ function syncLatestList() {
 function searchPage(title,items){
   return '<section class="wrap inside">'+crumb('অনুসন্ধান')+'<div class="bulletinHead"><h1>'+safe(title)+'</h1><small>'+bn(items.length)+'টি ফলাফল</small></div><div class="searchResults">'+(items.map(shelf).join('')||'<p>কোনো প্রতিবেদন পাওয়া যায়নি।</p>')+'</div></section>';
 }
+const sectionBatchSize = 10;
 function listing(title,items){
-  const cards=items.map(n=>story(n,img(n)+'<div class="sectionEntryCopy"><time class="sectionEntryDate" datetime="'+safe(n.date)+'">'+date(n)+' '+bn(Number(n.date.slice(0,4)))+
-    '</time><h2>'+safe(n.title)+'</h2><p>'+safe(n.summary)+'</p></div>', 'sectionEntry')).join('');
+  const cards=items.map((n,index)=>story(n,img(n)+'<div class="sectionEntryCopy"><time class="sectionEntryDate" datetime="'+safe(n.date)+'">'+date(n)+' '+bn(Number(n.date.slice(0,4)))+
+    '</time><h2>'+safe(n.title)+'</h2><p>'+safe(n.summary)+'</p></div>', 'sectionEntry'+(index>=sectionBatchSize?' sectionPending':''))).join('');
   return '<section class="wrap inside">'+crumb(title)+'<div class="sectionMast"><h1>'+safe(title)+'</h1><span>'+bn(items.length)+
-    'টি প্রতিবেদন</span></div><div class="sectionGrid">'+cards+'</div></section>';
+    'টি প্রতিবেদন</span></div><div class="sectionGrid">'+cards+'</div>'+(items.length>sectionBatchSize?'<button type="button" class="load sectionMore">আরও পড়ুন</button>':'')+'</section>';
 }
 function articleShare(n) {
   const permalink = new URL(url('article', n.id), location.href);
@@ -909,6 +910,13 @@ document.addEventListener('click',e=>{
   if (el.matches('.latestFilters [data-filter]')) {
     showBreaking = el.dataset.filter === 'breaking';
     syncLatestList();
+    return;
+  }
+  if (el.matches('.sectionMore')) {
+    const pending = [...el.previousElementSibling.querySelectorAll('.sectionPending')];
+    pending.slice(0,sectionBatchSize).forEach(card=>card.classList.remove('sectionPending'));
+    if (pending.length<=sectionBatchSize) el.remove();
+    pending[0]?.focus();
     return;
   }
   if (el.matches('#latest-list [data-more]')) {
