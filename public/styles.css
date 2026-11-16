@@ -1354,12 +1354,3 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
     text-align: center;
   }
 }
-
-.homeSectionMore { display: none; }
-@media (max-width: 700px) {
-  main[data-page="home"] .homeSectionMore {
-    display: block;
-    width: 100%;
-    text-align: center;
-  }
-}
