@@ -969,7 +969,7 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   }
   .openingGrid .feedTabs button {
     position: relative;
-    font-size: clamp(13px, 4vw, 15px);
+    font-size: clamp(12px, 3.7vw, 14px);
     padding: 8px clamp(5px, 2vw, 10px);
     min-height: 44px;
   }
@@ -1355,16 +1355,17 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
     border: 0;
     background: #081814aa;
   }
-  .videoBand .videoImage .playIcon svg { width: 32px; height: 32px; }
-  .videoBand .videoArrow {
+  .videoBand .videoImage .playIcon svg { width: 32px; height: 32px; opacity: .72; }
+  .videoBand .videoArrow,
+  .videoBand .videoArrow:hover {
     top: 26.596cqw;
     width: 44px;
     height: 44px;
     border: 0;
-    background: #081814aa;
+    background: transparent;
     color: white;
   }
   .videoBand .videoArrow > svg { display: none; }
   .videoBand .videoSkipIcon { display: grid; place-items: center; }
-  .videoBand .videoSkipIcon svg { width: 24px; height: 24px; }
+  .videoBand .videoSkipIcon svg { width: 24px; height: 24px; opacity: .72; }
 }
