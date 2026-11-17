@@ -220,7 +220,7 @@ function feature(n,primary=false,label){
 function front(){
   return '<section class="opening">'+sectionHead('টপ নিউজ','section','প্রধান শিরোনাম')+'<div class="openingGrid">'+
     '<div class="leadBriefs">'+ids(['1480','1478','1450']).map(n=>briefRow(n)).join('')+'</div>'+
-    feature(reportsById.get('1463'),true)+feedPanel()+'</div></section>';
+    feature(reportsById.get('1463'),true)+feedPanel()+'</div>'+'</section>';
 }
 function regionLabel(n) {
   if (n.id==='1482') return 'ইউরোপ';
@@ -325,11 +325,11 @@ function home(){
   return '<div class="wrap">'+front()+world()+'</div>'+videoBand()+
     '<div class="wrap">'+editorialPair()+
     '<div class="departments">'+department('মধ্যপ্রাচ্য')+department('প্রতিরক্ষা')+'</div>'+
-    '<section class="bangladesh">'+sectionHead('বাংলাদেশ','section','বাংলাদেশ')+'<div class="grid4">'+select('বাংলাদেশ').slice(0,4).map(n=>itemCard(n,'বাংলাদেশ')).join('')+'</div></section>'+
+    '<section class="bangladesh">'+sectionHead('বাংলাদেশ','section','বাংলাদেশ')+'<div class="grid4">'+select('বাংলাদেশ').slice(0,4).map(n=>itemCard(n,'বাংলাদেশ')).join('')+'</div>'+'</section>'+
     '<div class="departments">'+leftImageDepartment('এক্সপ্লেইনার')+leftImageDepartment('অর্থনীতি')+'</div>'+
     '<div class="departments">'+leftImageDepartment('প্রযুক্তি',true)+leftImageDepartment('এআই',true)+'</div>'+
     '<div class="departments">'+leftImageDepartment('সংস্কৃতি',true)+leftImageDepartment('খেলা',true)+'</div>'+
-    '<section class="specialSection">'+sectionHead('বিশেষ প্রতিবেদন','section','বিশেষ')+'<div class="grid4">'+select('বিশেষ').slice(0,4).map(n=>itemCard(n)).join('')+'</div></section></div>';
+    '<section class="specialSection">'+sectionHead('বিশেষ প্রতিবেদন','section','বিশেষ')+'<div class="grid4">'+select('বিশেষ').slice(0,4).map(n=>itemCard(n)).join('')+'</div>'+'</section></div>';
 }
 function footer(){return '<footer><div class="wrap"><div class="footMark">'+logo(true)+'<span>বস্তুনিষ্ঠ সংবাদ । অন্তরালের খবর</span></div><div class="footerGrid"><section><h2>সংবাদ বিভাগ</h2><div class="footCategories">'+sections.map(s=>anchor('section',s,s)).join('')+'</div></section><section><h2>ইলহাম নিউজ</h2>'+ext('আমাদের সম্পর্কে','about')+ext('যোগাযোগ','contact')+ext('বিজ্ঞাপন দিন','advertise')+ext('ই-পেপার','epaper')+anchor('videos','ভিডিও')+'</section><section class="telegramBox"><div class="tgIcon">'+icon('telegram')+'</div><div><h2>টেলিগ্রামে ইলহাম নিউজ</h2><p>নতুন খবর ও গুরুত্বপূর্ণ আপডেট পেতে আমাদের চ্যানেলে যোগ দিন।</p>'+tg('light')+'</div></section></div><div class="footBase"><span>© ২০২৬ Ilham News</span><div><a href="https://facebook.com/ilhamintnews" target="_blank" rel="noopener">Facebook</a><a href="https://youtube.com/@ilhamintnews" target="_blank" rel="noopener">YouTube</a><a href="https://instagram.com/ilhamintnews" target="_blank" rel="noopener">Instagram</a></div></div></div></footer>'}
 
@@ -370,7 +370,7 @@ function latestPage() {
   </div><div class="bulletin">
     <section id="latest-list" role="tabpanel" aria-labelledby="latest-all">${rows}
       <p data-latest-empty hidden>এখন কোনো ব্রেকিং আপডেট নেই।</p>
-      <button type="button" data-more class="load" hidden>আরও আপডেট ↓</button>
+      <button type="button" data-more class="load" hidden>আরও আপডেট<span class="loadArrow" aria-hidden="true"> ↓</span></button>
     </section>
     <aside>${ranked()}</aside>
   </div></div>`;
@@ -417,11 +417,13 @@ function syncLatestList() {
 function searchPage(title,items){
   return '<section class="wrap inside">'+crumb('অনুসন্ধান')+'<div class="bulletinHead"><h1>'+safe(title)+'</h1><small>'+bn(items.length)+'টি ফলাফল</small></div><div class="searchResults">'+(items.map(shelf).join('')||'<p>কোনো প্রতিবেদন পাওয়া যায়নি।</p>')+'</div></section>';
 }
+const sectionBatchSize = 10;
 function listing(title,items){
-  const cards=items.map(n=>story(n,img(n)+'<div><small>'+date(n)+' '+bn(Number(n.date.slice(0,4)))+
-    '</small><h2>'+safe(n.title)+'</h2><p>'+safe(n.summary)+'</p></div>', 'sectionEntry')).join('');
+  const initialCount = Math.min(sectionBatchSize, Math.max(1, items.length - 2));
+  const cards=items.map((n,index)=>story(n,img(n)+'<div class="sectionEntryCopy"><time class="sectionEntryDate" datetime="'+safe(n.date)+'">'+date(n)+' '+bn(Number(n.date.slice(0,4)))+
+    '</time><h2>'+safe(n.title)+'</h2><p>'+safe(n.summary)+'</p></div>', 'sectionEntry'+(index>=initialCount?' sectionPending':''))).join('');
   return '<section class="wrap inside">'+crumb(title)+'<div class="sectionMast"><h1>'+safe(title)+'</h1><span>'+bn(items.length)+
-    'টি প্রতিবেদন</span></div><div class="sectionGrid">'+cards+'</div></section>';
+    'টি প্রতিবেদন</span></div><div class="sectionGrid">'+cards+'</div>'+(items.length>initialCount?'<button type="button" class="load sectionMore">আরও পড়ুন</button>':'')+'</section>';
 }
 function articleShare(n) {
   const permalink = new URL(url('article', n.id), location.href);
@@ -910,6 +912,13 @@ document.addEventListener('click',e=>{
   if (el.matches('.latestFilters [data-filter]')) {
     showBreaking = el.dataset.filter === 'breaking';
     syncLatestList();
+    return;
+  }
+  if (el.matches('.sectionMore')) {
+    const pending = [...el.previousElementSibling.querySelectorAll('.sectionPending')];
+    pending.slice(0,sectionBatchSize).forEach(card=>card.classList.remove('sectionPending'));
+    if (pending.length<=sectionBatchSize) el.remove();
+    pending[0]?.focus();
     return;
   }
   if (el.matches('#latest-list [data-more]')) {
