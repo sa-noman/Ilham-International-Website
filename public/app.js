@@ -248,7 +248,7 @@ function scheduleHeadlines() {
     button.setAttribute('aria-label',playing?'স্বয়ংক্রিয় স্লাইড থামান':'স্বয়ংক্রিয় স্লাইড চালু করুন');
     button.innerHTML = playing ? '<span aria-hidden="true">Ⅱ</span>' : icon('play');
     clearInterval(headlineTimer);
-    if (playing) headlineTimer = setInterval(()=>{if(!document.hidden && !carousel.matches(':hover') && !carousel.contains(document.activeElement)) move(1);},6000);
+    if (playing) headlineTimer = setInterval(()=>{if(!document.hidden && !carousel.matches(':hover')) move(1);},6000);
   });
   let touchX;
   carousel.addEventListener('touchstart',event=>{touchX=event.changedTouches[0].clientX;},{passive:true});
