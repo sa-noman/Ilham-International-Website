@@ -1584,7 +1584,13 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   stroke-linejoin: round;
   opacity: 1;
 }
-.videoBand .videoImage .playIcon svg * { fill: none; }
+.videoBand .videoImage .playIcon svg path {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .videoBand .videoArrow,.videoBand .videoArrow:hover {
   width: 40px;
   height: 44px;
