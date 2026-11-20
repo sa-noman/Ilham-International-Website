@@ -594,12 +594,12 @@ function commentsSection(id) {
     </div>
   </article>`).join('');
   return `<section class="comments" data-article-id="${safe(id)}">
-    <h2>মন্তব্য <span>${bn(count)}</span></h2>
+    <h2><svg class="commentSubmitIcon" viewBox="0 0 28 28" aria-hidden="true"><path d="M5 3h18a3 3 0 0 1 3 3v13a3 3 0 0 1-3 3H12l-7 5v-5a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z"/><path d="M7 8h14M7 12h10M7 16h6"/></svg>মন্তব্য <span>${bn(count)}</span></h2>
     <form class="commentForm" data-comments>
       <p class="replyTarget" hidden></p>
       <input name="name" type="text" maxlength="80" required placeholder="আপনার নাম" aria-label="আপনার নাম">
       <textarea name="message" maxlength="2000" required rows="3" placeholder="আপনার মন্তব্য লিখুন..." aria-label="আপনার মন্তব্য"></textarea>
-      <div class="commentFormActions"><small><span data-comment-count>০</span> / ${bn(2000)} · সাইন-ইন বা ইমেইল লাগবে না</small><button type="button" data-cancel-reply hidden>বাতিল</button><button type="submit"><svg class="commentSubmitIcon" viewBox="0 0 28 28" aria-hidden="true"><path d="M5 3h18a3 3 0 0 1 3 3v13a3 3 0 0 1-3 3H12l-7 5v-5a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z"/><path d="M7 8h14M7 12h10M7 16h6"/></svg>মন্তব্য করুন</button></div>
+      <div class="commentFormActions"><small><span data-comment-count>০</span> / ${bn(2000)} · সাইন-ইন বা ইমেইল লাগবে না</small><button type="button" data-cancel-reply hidden>বাতিল</button><button type="submit">মন্তব্য করুন</button></div>
       <p class="commentError" role="status"></p>
     </form>
     <p class="commentsNote">প্রিভিউতে মন্তব্য এই ব্রাউজারে সংরক্ষিত থাকবে।</p>
