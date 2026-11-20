@@ -1621,3 +1621,18 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
     transform: rotate(45deg);
   }
 }
+
+@media (max-width: 700px) {
+  main[data-page="home"] .openingGrid .feedPanel { padding-bottom: 0; }
+  main[data-page="home"] .feedPanel .more[href="#latest"] {
+    margin-block: 12px;
+    padding: 4px 15px;
+    font-size: 14px;
+    line-height: 1.5;
+    gap: 9px;
+  }
+  main[data-page="home"] .feedPanel .more[href="#latest"]::after {
+    width: 5px;
+    height: 5px;
+  }
+}
