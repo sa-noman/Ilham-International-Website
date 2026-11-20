@@ -224,7 +224,7 @@ function headlineCarousel() {
     '<div class="headlineStage">'+
     items.map((n,index)=>'<article class="headlineSlide" role="group" aria-roledescription="স্লাইড" aria-label="'+bn(index+1)+' / '+bn(items.length)+'"'+(index?' hidden':'')+'>'+
       story(n,img(n,index===0)+'<div class="headlineCopy"><small>'+safe(n.cat)+'</small><'+(index===0?'h1':'h2')+'>'+safe(n.title)+'</'+(index===0?'h1':'h2')+'></div>','headlineLink')+'</article>').join('')+
-    '<div class="headlineControls"><button type="button" data-headline-step="-1" aria-label="আগের সংবাদ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5-7 7 7 7"/></svg></button><div class="headlineIndicators" aria-label="স্লাইডের অবস্থান">'+items.map((n,index)=>'<span'+(index===0?' aria-current="true"':'')+'></span>').join('')+'</div><button type="button" data-headline-step="1" aria-label="পরের সংবাদ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 5 7 7-7 7"/></svg></button><button type="button" data-headline-toggle aria-label="স্বয়ংক্রিয় স্লাইড থামান" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M10 9v6m4-6v6"/></svg></button></div></div></section>';
+    '<div class="headlineControls"><button type="button" data-headline-step="-1" aria-label="আগের সংবাদ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5-7 7 7 7"/></svg></button><span class="headlineCount" aria-label="স্লাইডের অবস্থান">'+bn(1).padStart(2,'০')+' / '+bn(items.length).padStart(2,'০')+'</span><button type="button" data-headline-step="1" aria-label="পরের সংবাদ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 5 7 7-7 7"/></svg></button><button type="button" data-headline-toggle aria-label="স্বয়ংক্রিয় স্লাইড থামান" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg></button></div></div></section>';
 }
 let headlineTimer;
 function scheduleHeadlines() {
@@ -254,7 +254,7 @@ function scheduleHeadlines() {
       outgoing.inert = false;
       sliding = false;
     });
-    carousel.querySelectorAll('.headlineIndicators span').forEach((bar,index)=>{ if(index===current) bar.setAttribute('aria-current','true'); else bar.removeAttribute('aria-current'); });
+    carousel.querySelector('.headlineCount').textContent = bn(current+1).padStart(2,'০')+' / '+bn(slides.length).padStart(2,'০');
   }
   carousel.querySelectorAll('[data-headline-step]').forEach(button => button.addEventListener('click',()=>move(Number(button.dataset.headlineStep))));
   carousel.querySelector('[data-headline-toggle]').addEventListener('click',event=>{
@@ -262,7 +262,7 @@ function scheduleHeadlines() {
     const button = event.currentTarget;
     button.setAttribute('aria-pressed',String(playing));
     button.setAttribute('aria-label',playing?'স্বয়ংক্রিয় স্লাইড থামান':'স্বয়ংক্রিয় স্লাইড চালু করুন');
-    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/>'+(playing?'<path d="M10 9v6m4-6v6"/>':'<path d="m10 8 6 4-6 4z"/>')+'</svg>';
+    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">'+(playing?'<path d="M9 5v14M15 5v14"/>':'<path d="m10 8 6 4-6 4z"/>')+'</svg>';
     clearInterval(headlineTimer);
     if (playing) headlineTimer = setInterval(()=>{if(!document.hidden) move(1);},4000);
   });
