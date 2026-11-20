@@ -514,6 +514,35 @@ function articleShare(n) {
   </div>`;
 }
 
+document.addEventListener('pointerout', event => {
+  if (event.pointerType !== 'mouse') return;
+  const actions = event.target.closest('.articleActions');
+  if (!actions || event.relatedTarget?.closest('.mobileShareToggle, .articleShareControls')) return;
+  actions.classList.remove('shareExpanded');
+  const toggle = actions.querySelector('[data-toggle-article-share]');
+  toggle?.setAttribute('aria-expanded','false');
+  toggle?.setAttribute('aria-label','শেয়ার অপশন দেখুন');
+});
+document.addEventListener('click', event => {
+  if (event.target.closest('.articleActions')) return;
+  document.querySelectorAll('.articleActions.shareExpanded').forEach(actions => {
+    actions.classList.remove('shareExpanded');
+    const toggle = actions.querySelector('[data-toggle-article-share]');
+    toggle.setAttribute('aria-expanded','false');
+    toggle.setAttribute('aria-label','শেয়ার অপশন দেখুন');
+  });
+});
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Escape') return;
+  document.querySelectorAll('.articleActions.shareExpanded').forEach(actions => {
+    actions.classList.remove('shareExpanded');
+    const toggle = actions.querySelector('[data-toggle-article-share]');
+    toggle.setAttribute('aria-expanded','false');
+    toggle.setAttribute('aria-label','শেয়ার অপশন দেখুন');
+    toggle.focus();
+  });
+});
+
 async function copyArticleLink(actions, instagram=false) {
   const status = actions.closest('.articleReader').querySelector('.articleShareStatus');
   const link = actions.dataset.articleLink;
