@@ -1638,7 +1638,7 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
 }
 
 @media (max-width: 700px) {
-  main[data-page="home"] .openingGrid > .feedPanel + .leadBriefs {
+  main[data-page="home"] .openingGrid > .leadBriefs {
     margin-top: 0;
   }
 }
