@@ -217,10 +217,54 @@ function feature(n,primary=false,label){
   const tag=primary?'h1':'h3';
   return story(n,img(n,primary)+'<div>'+(label?badge(n,label):'')+'<'+tag+'>'+safe(n.title)+'</'+tag+'><p>'+safe(n.summary)+'</p><small>'+date(n)+'</small></div>','feature');
 }
+
+function headlineCarousel() {
+  const items = [reportsById.get('1463'), ...wire.filter(n => !['1463','1480','1478','1450'].includes(n.id))].filter(Boolean).slice(0,5);
+  return '<section class="headlineCarousel" role="region" aria-label="প্রধান শিরোনাম" aria-roledescription="স্লাইডার">'+
+    '<div class="headlineMast"><h2>প্রধান শিরোনাম</h2></div><div class="headlineStage">'+
+    items.map((n,index)=>'<article class="headlineSlide" role="group" aria-roledescription="স্লাইড" aria-label="'+bn(index+1)+' / '+bn(items.length)+'"'+(index?' hidden':'')+'>'+
+      story(n,img(n,index===0)+'<div class="headlineCopy"><small>'+safe(n.cat)+'</small><'+(index===0?'h1':'h2')+'>'+safe(n.title)+'</'+(index===0?'h1':'h2')+'></div>','headlineLink')+'</article>').join('')+
+    '<div class="headlineControls"><button type="button" data-headline-step="-1" aria-label="আগের সংবাদ">'+icon('arrow')+'</button><span class="headlineCount" aria-live="polite">১ / '+bn(items.length)+'</span><button type="button" data-headline-step="1" aria-label="পরের সংবাদ">'+icon('arrow')+'</button><button type="button" data-headline-toggle aria-label="স্বয়ংক্রিয় স্লাইড চালু করুন" aria-pressed="false">'+icon('play')+'</button></div></div></section>';
+}
+let headlineTimer;
+function scheduleHeadlines() {
+  clearInterval(headlineTimer);
+  const carousel = document.querySelector('.headlineCarousel');
+  if (!carousel) return;
+  const slides = [...carousel.querySelectorAll('.headlineSlide')];
+  let current = 0;
+  let playing = false;
+  function move(direction) {
+    slides[current].hidden = true;
+    current = (current + direction + slides.length) % slides.length;
+    slides[current].hidden = false;
+    carousel.querySelector('.headlineCount').textContent = bn(current+1)+' / '+bn(slides.length);
+  }
+  carousel.querySelectorAll('[data-headline-step]').forEach(button => button.addEventListener('click',()=>move(Number(button.dataset.headlineStep))));
+  carousel.querySelector('[data-headline-toggle]').addEventListener('click',event=>{
+    playing = !playing;
+    const button = event.currentTarget;
+    button.setAttribute('aria-pressed',String(playing));
+    button.setAttribute('aria-label',playing?'স্বয়ংক্রিয় স্লাইড থামান':'স্বয়ংক্রিয় স্লাইড চালু করুন');
+    button.innerHTML = playing ? '<span aria-hidden="true">Ⅱ</span>' : icon('play');
+    clearInterval(headlineTimer);
+    if (playing) headlineTimer = setInterval(()=>{if(!document.hidden && !carousel.matches(':hover') && !carousel.contains(document.activeElement)) move(1);},6000);
+  });
+  let touchX;
+  carousel.addEventListener('touchstart',event=>{touchX=event.changedTouches[0].clientX;},{passive:true});
+  carousel.addEventListener('touchend',event=>{
+    const distance=event.changedTouches[0].clientX-touchX;
+    if(Math.abs(distance)>45) move(distance<0?1:-1);
+  },{passive:true});
+  carousel.addEventListener('keydown',event=>{
+    if(event.key==='ArrowLeft' || event.key==='ArrowRight') {event.preventDefault();move(event.key==='ArrowLeft'?-1:1);}
+  });
+}
+
 function front(){
   return '<section class="opening">'+sectionHead('টপ নিউজ','section','প্রধান শিরোনাম')+'<div class="openingGrid">'+
     '<div class="leadBriefs">'+ids(['1480','1478','1450']).map(n=>briefRow(n)).join('')+'</div>'+
-    feature(reportsById.get('1463'),true)+feedPanel()+'</div>'+'</section>';
+    headlineCarousel()+feedPanel()+'</div>'+'</section>';
 }
 function regionLabel(n) {
   if (n.id==='1482') return 'ইউরোপ';
@@ -872,7 +916,7 @@ document.addEventListener('click',event=>{
   }
 });
 
-function render(){const [page,param]=pageState();let view=home;if(page==='latest')view=latestPage;if(page==='videos')view=()=>watch(param);if(page==='section')view=()=>listing(param,select(param));if(page==='article'&&reportsById.has(param))view=()=>article(reportsById.get(param));if(page==='search')view=()=>searchPage('অনুসন্ধান · '+param,wire.filter(n=>(n.title+' '+n.summary+' '+n.tags.join(' ')).includes(param)));document.querySelector('#publication').innerHTML=header(page,param)+'<main id="main" data-page="'+page+'">'+view()+'</main>'+footer()+mobileDock(page,param);syncHeader();scheduleVideos();measureFeedTab();if(page==='home')document.fonts.ready.then(measureFeedTab);if(page==='latest'){
+function render(){const [page,param]=pageState();let view=home;if(page==='latest')view=latestPage;if(page==='videos')view=()=>watch(param);if(page==='section')view=()=>listing(param,select(param));if(page==='article'&&reportsById.has(param))view=()=>article(reportsById.get(param));if(page==='search')view=()=>searchPage('অনুসন্ধান · '+param,wire.filter(n=>(n.title+' '+n.summary+' '+n.tags.join(' ')).includes(param)));document.querySelector('#publication').innerHTML=header(page,param)+'<main id="main" data-page="'+page+'">'+view()+'</main>'+footer()+mobileDock(page,param);syncHeader();scheduleVideos();scheduleHeadlines();measureFeedTab();if(page==='home')document.fonts.ready.then(measureFeedTab);if(page==='latest'){
     syncLatestList();
     const main=document.querySelector('main[data-page=latest]');
     main.getBoundingClientRect();

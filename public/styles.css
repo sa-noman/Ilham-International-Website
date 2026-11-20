@@ -1374,3 +1374,40 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   .openingGrid .feedBody .compactUpdate h3 { font-size: 16px; }
   .openingGrid .feedBody li h3 { font-size: 17px; }
 }
+
+/* Homepage lead slideshow. */
+.openingGrid > .headlineCarousel { min-width: 0; }
+.headlineMast { border-top: 2px solid var(--green); padding: 8px 0 12px; }
+.headlineMast h2 { color: var(--green); font: 600 24px/1.35 var(--sans); margin: 0; }
+.headlineStage { position: relative; isolation: isolate; overflow: hidden; background: var(--dark); }
+.headlineSlide[hidden] { display: none; }
+.headlineSlide { position: relative; min-height: 510px; aspect-ratio: 1 / 1.13; }
+.headlineLink { display: block; position: absolute; inset: 0; color: white; }
+.headlineLink .imageFrame { position: absolute; inset: 0; height: 100%; width: 100%; }
+.headlineLink img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.headlineLink::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg,transparent 20%,rgba(9,63,51,.12) 35%,rgba(6,43,34,.88) 72%,#062b22 100%); }
+.headlineCopy { position: absolute; z-index: 1; inset-inline: 20px; bottom: 62px; }
+.headlineCopy small { color: #e1c783; font: 600 14px/1.5 var(--sans); }
+.headlineCarousel .headlineCopy h1,.headlineCarousel .headlineCopy h2 { margin: 8px 0 0; color: white; font: 700 clamp(26px,2.4vw,36px)/1.42 var(--serif); }
+.headlineLink:hover .headlineCopy h1,.headlineLink:hover .headlineCopy h2 { color: white; }
+.headlineControls { position: absolute; z-index: 2; bottom: 15px; left: 20px; display: flex; gap: 8px; align-items: center; color: white; }
+.headlineControls button { display: grid; place-items: center; width: 32px; height: 30px; padding: 5px; border: 1px solid #ffffff5c; border-radius: 0; background: transparent; color: white; cursor: pointer; }
+.headlineControls svg { width: 19px; height: 19px; }
+.headlineControls [data-headline-step="-1"] svg { transform: rotate(180deg); }
+.headlineControls button:hover { background: var(--green); border-color: var(--gold); }
+.headlineControls button:focus-visible,.headlineLink:focus-visible { outline: 2px solid var(--gold); outline-offset: -3px; }
+.headlineCount { font: 600 14px/1 var(--sans); }
+@media (max-width: 820px) {
+  .openingGrid > .headlineCarousel { grid-column: 1; grid-row: 1; border-left: 0; padding-left: 0; }
+  .headlineSlide { min-height: 440px; }
+  .headlineCarousel .headlineCopy h1,.headlineCarousel .headlineCopy h2 { font-size: 28px; }
+}
+@media (max-width: 650px) {
+  .openingGrid > .headlineCarousel { order: -1; padding: 0; }
+  .headlineMast { padding: 7px 0 10px; }
+  .headlineMast h2 { font-size: 22px; }
+  .headlineSlide { min-height: 410px; aspect-ratio: 1 / 1.2; }
+  .headlineCopy { inset-inline: 16px; bottom: 60px; }
+  .headlineCarousel .headlineCopy h1,.headlineCarousel .headlineCopy h2 { font-size: clamp(24px,6.4vw,30px); line-height: 1.42; }
+  .headlineControls { left: 16px; }
+}
