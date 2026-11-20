@@ -1642,3 +1642,23 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
     margin-top: 0;
   }
 }
+
+@media (max-width: 700px) {
+  main[data-page="latest"] #latest-list > [data-more],
+  main[data-page="section"] .sectionMore {
+    display: block;
+    width: fit-content;
+    margin: 12px auto;
+    padding: 4px 15px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--green);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    text-align: center;
+  }
+  main[data-page="latest"] #latest-list > [data-more][hidden] { display: none; }
+  main[data-page="latest"] #latest-list > [data-more] .loadArrow { display: none; }
+}
