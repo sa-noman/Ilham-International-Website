@@ -579,26 +579,38 @@ function readComments(id) {
   }
   catch { return []; }
 }
+function commentAuthor(comment) {
+  const elapsed = comment.createdAt ? '<small>'+safe(timeAgo(comment.createdAt,Date.now()))+'</small>' : '';
+  return '<span class="commentAvatar" aria-hidden="true">'+safe(Array.from(comment.name||'অ')[0])+'</span><div class="commentAuthor"><strong>'+safe(comment.name)+'</strong>'+elapsed+'</div>';
+}
 function commentsSection(id) {
   const comments=readComments(id);
-  const thread=comments.map(comment=>`<div class="commentItem">
-    <strong>${safe(comment.name)}</strong><p>${safe(comment.message)}</p>
-    <button type="button" data-comment-reply="${safe(comment.id)}">উত্তর দিন</button>
-    ${(comment.replies||[]).map(reply=>`<div class="commentReply"><strong>${safe(reply.name)}</strong><p>${safe(reply.message)}</p></div>`).join('')}
-  </div>`).join('');
+  const count=comments.reduce((total,comment)=>total+1+(comment.replies?.length||0),0);
+  const thread=comments.map(comment=>`<article class="commentItem">
+    <div class="commentAuthorRow">${commentAuthor(comment)}</div>
+    <div class="commentContent"><p>${safe(comment.message)}</p>
+    <button type="button" data-comment-reply="${safe(comment.id)}"><span aria-hidden="true">↶</span> উত্তর</button>
+    ${(comment.replies||[]).map(reply=>`<div class="commentReply"><div class="commentAuthorRow">${commentAuthor(reply)}</div><div class="commentReplyBody"><p>${safe(reply.message)}</p></div></div>`).join('')}
+    </div>
+  </article>`).join('');
   return `<section class="comments" data-article-id="${safe(id)}">
-    <h2>মন্তব্য <span>${bn(comments.length)}</span></h2>
-    <p class="commentsNote">প্রিভিউতে মন্তব্য এই ব্রাউজারে সংরক্ষিত থাকবে।</p>
+    <h2>মন্তব্য <span>${bn(count)}</span></h2>
     <form class="commentForm" data-comments>
       <p class="replyTarget" hidden></p>
       <input name="name" type="text" maxlength="80" required placeholder="আপনার নাম" aria-label="আপনার নাম">
-      <textarea name="message" maxlength="2000" required rows="3" placeholder="আপনার মন্তব্য লিখুন" aria-label="আপনার মন্তব্য"></textarea>
-      <div class="commentFormActions"><button type="button" data-cancel-reply hidden>বাতিল</button><button type="submit">মন্তব্য পাঠান</button></div>
+      <textarea name="message" maxlength="2000" required rows="3" placeholder="আপনার মন্তব্য লিখুন..." aria-label="আপনার মন্তব্য"></textarea>
+      <div class="commentFormActions"><small><span data-comment-count>০</span> / ${bn(2000)} · সাইন-ইন বা ইমেইল লাগবে না</small><button type="button" data-cancel-reply hidden>বাতিল</button><button type="submit"><svg class="commentSubmitIcon" viewBox="0 0 28 28" aria-hidden="true"><path d="M5 3h18a3 3 0 0 1 3 3v13a3 3 0 0 1-3 3H12l-7 5v-5a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z"/><path d="M7 8h14M7 12h10M7 16h6"/></svg>মন্তব্য করুন</button></div>
       <p class="commentError" role="status"></p>
     </form>
+    <p class="commentsNote">প্রিভিউতে মন্তব্য এই ব্রাউজারে সংরক্ষিত থাকবে।</p>
     <div class="commentList">${thread || '<p class="commentsEmpty">এখনও কোনো মন্তব্য নেই। প্রথম মন্তব্যটি করুন।</p>'}</div>
   </section>`;
 }
+document.addEventListener('input',event=>{
+  if(!event.target.matches('[data-comments] textarea')) return;
+  event.target.form.querySelector('[data-comment-count]').textContent=bn(event.target.value.length);
+});
+
 
 function article(n) {
   const tags = [...new Set(n.tags)];
@@ -1084,9 +1096,9 @@ document.addEventListener('submit',e=>{
       const parent=comments.find(comment=>comment.id===replyTo);
       if (!parent) { form.querySelector('.commentError').textContent='মূল মন্তব্যটি পাওয়া যায়নি।'; return; }
       parent.replies ||= [];
-      parent.replies.push({name,message});
+      parent.replies.push({name,message,createdAt:new Date().toISOString()});
     } else {
-      comments.push({id:crypto.randomUUID(),name,message,replies:[]});
+      comments.push({id:crypto.randomUUID(),name,message,replies:[],createdAt:new Date().toISOString()});
     }
     try {
       localStorage.setItem('ilham-comments-'+section.dataset.articleId,JSON.stringify(comments));
