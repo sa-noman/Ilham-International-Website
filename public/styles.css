@@ -1636,3 +1636,9 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
     height: 5px;
   }
 }
+
+@media (max-width: 700px) {
+  main[data-page="home"] .openingGrid > .feedPanel + .leadBriefs {
+    margin-top: 0;
+  }
+}
