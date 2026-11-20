@@ -876,7 +876,8 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   font-size: 16px;
 }
 .articleGoogleNews svg:first-child { width: 20px; height: 20px; stroke: none; }
-.articleGoogleNews svg:last-child { width: 14px; height: 14px; }
+.articleGoogleNews svg:last-child { display: none; }
+.articleGoogleNews span { font-weight: 600; }
 .articleGoogleNews:hover { background: #eaf2e9; }
 .articleTags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; font-size: 13px; }
 .articleTags span { color: var(--muted); margin-inline-end: 3px; }
@@ -1515,8 +1516,8 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
 .commentFormActions { align-items: center; flex-wrap: wrap; gap: 10px; }
 .commentFormActions small { margin-inline-end: auto; color: var(--muted); font-size: 13px; }
 .commentFormActions button { border-radius: 7px; }
-.commentFormActions button[type=submit] { background: #dbe7df; color: var(--green); border: 1px solid #cbdcd1; font: 700 17px/1.4 var(--sans); padding: 9px 21px; }
-.commentFormActions button[type=submit]:hover { background: #cdded3; }
+.commentFormActions button[type=submit] { background: var(--green); color: white; border: 1px solid var(--green); font: 700 17px/1.4 var(--sans); padding: 9px 21px; }
+.commentFormActions button[type=submit]:hover { background: #10352e; }
 .commentSubmitIcon { width: 23px; height: 23px; flex-shrink: 0; }
 .commentSubmitIcon path:first-child { fill: #97b6a3; stroke: none; }
 .commentSubmitIcon path+path { fill: none; stroke: white; stroke-width: 1.8; stroke-linecap: round; }
