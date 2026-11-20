@@ -1422,3 +1422,15 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   .articleActions.shareExpanded .articleShareControls { display: flex; }
   .articleActions .mobileShareToggle[aria-expanded=true] { background: #e1ebe5; color: var(--green); }
 }
+
+/* Match the original lead footprint without a separate heading. */
+.headlineStage { aspect-ratio: 1 / 1.05; }
+.headlineSlide { position: absolute; inset: 0; min-height: 0; aspect-ratio: auto; }
+@media (max-width: 820px) {
+  .headlineStage { aspect-ratio: 1 / 1.2; }
+  .headlineSlide { min-height: 0; }
+}
+@media (max-width: 650px) {
+  .headlineStage { aspect-ratio: 1 / 1.15; }
+  .headlineSlide { min-height: 0; }
+}
