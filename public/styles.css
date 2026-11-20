@@ -1411,3 +1411,14 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   .headlineCarousel .headlineCopy h1,.headlineCarousel .headlineCopy h2 { font-size: clamp(24px,6.4vw,30px); line-height: 1.42; }
   .headlineControls { left: 16px; }
 }
+
+/* Compact article actions on phones. */
+.articleActions .mobileShareToggle { display: none; }
+@media (max-width: 650px) {
+  .articleActions { flex-direction: column; align-items: stretch; gap: 10px; }
+  .articleActions .articleTextControls { order: 0; width: 100%; margin-inline-start: 0; justify-content: flex-end; }
+  .articleActions .mobileShareToggle { display: grid; margin-inline-end: auto; }
+  .articleActions .articleShareControls { display: none; order: 1; width: 100%; padding-top: 10px; border-top: 1px solid var(--line); }
+  .articleActions.shareExpanded .articleShareControls { display: flex; }
+  .articleActions .mobileShareToggle[aria-expanded=true] { background: #e1ebe5; color: var(--green); }
+}

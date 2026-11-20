@@ -482,12 +482,13 @@ function articleShare(n) {
     ['whatsapp', 'হোয়াটসঅ্যাপ', 'https://wa.me/?text='+title+'%20'+link]
   ];
   return `<div class="articleActions" data-article-link="${safe(permalink.href)}">
-    <div class="articleShareControls" role="group" aria-label="শেয়ার করার মাধ্যম">
+    <div class="articleShareControls" id="article-share-options" role="group" aria-label="শেয়ার করার মাধ্যম">
       ${platforms.map(([id,label,href])=>`<a class="articleAction" href="${safe(href)}" target="_blank" rel="noopener" aria-label="${label}" title="${id==='instagram'?'লিংক কপি করে ইন্সটাগ্রাম খুলুন':label}"${id==='instagram'?' data-instagram':''}>${icon(id)}</a>`).join('')}
       <button type="button" class="articleAction" data-copy-article aria-label="লিংক কপি" title="লিংক কপি">${icon('link')}</button>
       <button type="button" class="articleAction" data-share-other aria-label="অন্যান্য মাধ্যমে শেয়ার" title="অন্যান্য মাধ্যমে শেয়ার">${icon('share')}</button>
     </div>
     <div class="articleTextControls" role="group" aria-label="লেখার আকার ও প্রিন্ট">
+      <button type="button" class="articleAction mobileShareToggle" data-toggle-article-share aria-expanded="false" aria-controls="article-share-options" aria-label="শেয়ার অপশন দেখুন" title="শেয়ার">${icon('share')}</button>
       <button type="button" data-text-size="-1" aria-label="লেখা ছোট করুন">−</button>
       <button type="button" data-text-size="0" aria-label="স্বাভাবিক আকারে ফেরান">অ</button>
       <button type="button" data-text-size="1" aria-label="লেখা বড় করুন">+</button>
@@ -999,6 +1000,13 @@ document.addEventListener('click',e=>{
   }
   const actions=el.closest('.articleActions');
   if (actions) {
+    if (el.hasAttribute('data-toggle-article-share')) {
+      const expanded = el.getAttribute('aria-expanded') !== 'true';
+      el.setAttribute('aria-expanded', String(expanded));
+      el.setAttribute('aria-label', expanded ? 'শেয়ার অপশন বন্ধ করুন' : 'শেয়ার অপশন দেখুন');
+      actions.classList.toggle('shareExpanded', expanded);
+      return;
+    }
     if (el.hasAttribute('data-print-article')) window.print();
     if (el.matches('[data-copy-article], [data-instagram]')) copyArticleLink(actions, el.hasAttribute('data-instagram'));
     if (el.hasAttribute('data-share-other')) shareArticleOther(actions);
