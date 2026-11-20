@@ -1662,3 +1662,14 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   main[data-page="latest"] #latest-list > [data-more][hidden] { display: none; }
   main[data-page="latest"] #latest-list > [data-more] .loadArrow { display: none; }
 }
+
+@media (max-width: 700px) {
+  main[data-page="latest"] #latest-list > [data-more],
+  main[data-page="section"] .sectionMore {
+    min-width: 130px;
+    padding: 10px 24px;
+    font-size: 16px;
+    line-height: 1.5;
+    border-radius: 999px;
+  }
+}
