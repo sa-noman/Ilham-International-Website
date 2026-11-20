@@ -224,7 +224,7 @@ function headlineCarousel() {
     '<div class="headlineStage">'+
     items.map((n,index)=>'<article class="headlineSlide" role="group" aria-roledescription="স্লাইড" aria-label="'+bn(index+1)+' / '+bn(items.length)+'"'+(index?' hidden':'')+'>'+
       story(n,img(n,index===0)+'<div class="headlineCopy"><small>'+safe(n.cat)+'</small><'+(index===0?'h1':'h2')+'>'+safe(n.title)+'</'+(index===0?'h1':'h2')+'></div>','headlineLink')+'</article>').join('')+
-    '<div class="headlineControls"><button type="button" data-headline-step="-1" aria-label="আগের সংবাদ">'+icon('arrow')+'</button><span class="headlineCount" aria-live="polite">১ / '+bn(items.length)+'</span><button type="button" data-headline-step="1" aria-label="পরের সংবাদ">'+icon('arrow')+'</button><button type="button" data-headline-toggle aria-label="স্বয়ংক্রিয় স্লাইড থামান" aria-pressed="true"><span aria-hidden="true">Ⅱ</span></button></div></div></section>';
+    '<div class="headlineControls"><button type="button" data-headline-step="-1" aria-label="আগের সংবাদ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5-7 7 7 7"/></svg></button><div class="headlineIndicators" aria-label="স্লাইডের অবস্থান">'+items.map((n,index)=>'<span'+(index===0?' aria-current="true"':'')+'></span>').join('')+'</div><button type="button" data-headline-step="1" aria-label="পরের সংবাদ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 5 7 7-7 7"/></svg></button><button type="button" data-headline-toggle aria-label="স্বয়ংক্রিয় স্লাইড থামান" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M10 9v6m4-6v6"/></svg></button></div></div></section>';
 }
 let headlineTimer;
 function scheduleHeadlines() {
@@ -246,15 +246,15 @@ function scheduleHeadlines() {
     outgoing.inert = true;
     const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 650;
     const options = { duration, easing: 'cubic-bezier(.22,.61,.36,1)' };
-    outgoing.animate([{transform:'translateX(0)'},{transform:'translateX('+direction*100+'%)'}],options);
-    const animation = incoming.animate([{transform:'translateX('+(-direction*100)+'%)'},{transform:'translateX(0)'}],options);
+    outgoing.animate([{transform:'translateX(0)'},{transform:'translateX('+(-direction*100)+'%)'}],options);
+    const animation = incoming.animate([{transform:'translateX('+(direction*100)+'%)'},{transform:'translateX(0)'}],options);
     animation.finished.then(()=>{
       outgoing.hidden = true;
       outgoing.removeAttribute('aria-hidden');
       outgoing.inert = false;
       sliding = false;
     });
-    carousel.querySelector('.headlineCount').textContent = bn(current+1)+' / '+bn(slides.length);
+    carousel.querySelectorAll('.headlineIndicators span').forEach((bar,index)=>{ if(index===current) bar.setAttribute('aria-current','true'); else bar.removeAttribute('aria-current'); });
   }
   carousel.querySelectorAll('[data-headline-step]').forEach(button => button.addEventListener('click',()=>move(Number(button.dataset.headlineStep))));
   carousel.querySelector('[data-headline-toggle]').addEventListener('click',event=>{
@@ -262,7 +262,7 @@ function scheduleHeadlines() {
     const button = event.currentTarget;
     button.setAttribute('aria-pressed',String(playing));
     button.setAttribute('aria-label',playing?'স্বয়ংক্রিয় স্লাইড থামান':'স্বয়ংক্রিয় স্লাইড চালু করুন');
-    button.innerHTML = playing ? '<span aria-hidden="true">Ⅱ</span>' : icon('play');
+    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/>'+(playing?'<path d="M10 9v6m4-6v6"/>':'<path d="m10 8 6 4-6 4z"/>')+'</svg>';
     clearInterval(headlineTimer);
     if (playing) headlineTimer = setInterval(()=>{if(!document.hidden) move(1);},4000);
   });

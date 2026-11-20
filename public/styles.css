@@ -1486,3 +1486,21 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
   .headlineStage { aspect-ratio: 1 / 1.15; }
   .headlineSlide { min-height: 0; }
 }
+
+/* Wider lead and minimal slideshow controls. */
+@media (min-width: 821px) {
+  .openingGrid { grid-template-columns: minmax(0,.85fr) minmax(0,1.6fr) minmax(0,.8fr); }
+  .headlineStage { aspect-ratio: 1 / .96; }
+}
+@media (min-width: 1380px) {
+  .openingGrid { grid-template-columns: 28% minmax(0,608px) minmax(0,1fr); }
+}
+.headlineControls { gap: 10px; }
+.headlineControls button { border: 0; width: 24px; height: 28px; padding: 3px; background: transparent; }
+.headlineControls button:hover { background: transparent; color: #e1c783; }
+.headlineControls svg { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.headlineControls [data-headline-step="-1"] svg { transform: none; }
+.headlineControls [data-headline-toggle] svg { width: 16px; height: 16px; }
+.headlineIndicators { display: flex; align-items: center; gap: 5px; }
+.headlineIndicators span { display: block; width: 24px; height: 4px; border-radius: 2px; background: #ffffff55; transition: background .25s ease; }
+.headlineIndicators span[aria-current=true] { background: #d8b35e; }
