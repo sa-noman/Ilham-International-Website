@@ -1673,3 +1673,46 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
     border-radius: 999px;
   }
 }
+
+
+/* Phone latest cards: headline, full-width image, then summary. */
+@media (max-width: 700px) {
+  main[data-page="latest"] .moment .dispatch {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 14px;
+  }
+  main[data-page="latest"] .moment .dispatch > div { display: contents; }
+  main[data-page="latest"] .moment .dispatch .desk,
+  main[data-page="latest"] .moment .dispatch .break { order: 0; align-self: flex-start; }
+  main[data-page="latest"] .moment .dispatch h3 {
+    order: 1;
+    font-size: 20px;
+    line-height: 1.45;
+    margin: 0;
+  }
+  main[data-page="latest"] .moment .dispatch > .imageFrame {
+    display: block;
+    order: 2;
+    width: 100%;
+    max-width: none;
+    border-radius: 7px;
+    overflow: hidden;
+  }
+  main[data-page="latest"] .moment .dispatch img {
+    width: 100%;
+    height: auto;
+    max-height: none;
+    aspect-ratio: 2.7 / 1;
+    object-fit: cover;
+    border-radius: 7px;
+  }
+  main[data-page="latest"] .moment .dispatch p {
+    order: 3;
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+}
