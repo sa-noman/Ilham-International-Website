@@ -599,17 +599,12 @@ function commentsSection(id) {
       <p class="replyTarget" hidden></p>
       <input name="name" type="text" maxlength="80" required placeholder="আপনার নাম" aria-label="আপনার নাম">
       <textarea name="message" maxlength="2000" required rows="3" placeholder="আপনার মন্তব্য লিখুন..." aria-label="আপনার মন্তব্য"></textarea>
-      <div class="commentFormActions"><small><span data-comment-count>০</span> / ${bn(2000)} · সাইন-ইন বা ইমেইল লাগবে না</small><button type="button" data-cancel-reply hidden>বাতিল</button><button type="submit">মন্তব্য করুন</button></div>
+      <div class="commentFormActions"><button type="button" data-cancel-reply hidden>বাতিল</button><button type="submit">মন্তব্য করুন</button></div>
       <p class="commentError" role="status"></p>
     </form>
-    <p class="commentsNote">প্রিভিউতে মন্তব্য এই ব্রাউজারে সংরক্ষিত থাকবে।</p>
     <div class="commentList">${thread || '<p class="commentsEmpty">এখনও কোনো মন্তব্য নেই। প্রথম মন্তব্যটি করুন।</p>'}</div>
   </section>`;
 }
-document.addEventListener('input',event=>{
-  if(!event.target.matches('[data-comments] textarea')) return;
-  event.target.form.querySelector('[data-comment-count]').textContent=bn(event.target.value.length);
-});
 
 
 function article(n) {
