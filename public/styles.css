@@ -1724,3 +1724,7 @@ main .articlePage { grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) m
     font-weight: 400;
   }
 }
+
+@media (max-width: 700px) {
+  main[data-page="latest"] .moment > time strong { font-weight: 700; }
+}
