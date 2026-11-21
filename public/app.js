@@ -590,7 +590,7 @@ function commentsSection(id) {
     <div class="commentAuthorRow">${commentAuthor(comment)}</div>
     <div class="commentContent"><p>${safe(comment.message)}</p>
     <button type="button" data-comment-reply="${safe(comment.id)}"><span aria-hidden="true">↶</span> উত্তর</button>
-    ${(comment.replies||[]).map(reply=>`<div class="commentReply"><div class="commentAuthorRow">${commentAuthor(reply)}</div><div class="commentReplyBody"><p>${safe(reply.message)}</p></div></div>`).join('')}
+    ${(comment.replies||[]).map(reply=>`<div class="commentReply"><div class="commentAuthorRow">${commentAuthor(reply)}</div><div class="commentReplyBody"><p>${reply.replyToName ? '<strong class="replyMention">'+safe(reply.replyToName)+'</strong> ' : ''}${safe(reply.message)}</p><button type="button" data-comment-reply="${safe(comment.id)}" data-reply-author="${safe(reply.name)}"><span aria-hidden="true">↶</span> উত্তর</button></div></div>`).join('')}
     </div>
   </article>`).join('');
   return `<section class="comments" data-article-id="${safe(id)}">
@@ -1027,7 +1027,8 @@ document.addEventListener('click',e=>{
   if (el.hasAttribute('data-comment-reply')) {
     const section=el.closest('.comments'), form=section.querySelector('form');
     form.dataset.replyTo=el.dataset.commentReply;
-    const author=el.closest('.commentItem').querySelector('strong').textContent;
+    const author=el.dataset.replyAuthor || el.closest('.commentItem').querySelector('strong').textContent;
+    form.dataset.replyAuthor=author;
     const target=form.querySelector('.replyTarget');
     target.textContent=author+'-এর মন্তব্যের উত্তর লিখুন';
     target.hidden=false;
@@ -1038,6 +1039,7 @@ document.addEventListener('click',e=>{
   if (el.hasAttribute('data-cancel-reply')) {
     const form=el.closest('form');
     delete form.dataset.replyTo;
+    delete form.dataset.replyAuthor;
     form.querySelector('.replyTarget').hidden=true;
     el.hidden=true;
     return;
@@ -1091,7 +1093,7 @@ document.addEventListener('submit',e=>{
       const parent=comments.find(comment=>comment.id===replyTo);
       if (!parent) { form.querySelector('.commentError').textContent='মূল মন্তব্যটি পাওয়া যায়নি।'; return; }
       parent.replies ||= [];
-      parent.replies.push({name,message,createdAt:new Date().toISOString()});
+      parent.replies.push({id:crypto.randomUUID(),name,message,replyToName:form.dataset.replyAuthor||parent.name,createdAt:new Date().toISOString()});
     } else {
       comments.push({id:crypto.randomUUID(),name,message,replies:[],createdAt:new Date().toISOString()});
     }
